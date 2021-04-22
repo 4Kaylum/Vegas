@@ -94,6 +94,7 @@ class BlackjackCommands(utils.Cog):
             if max_dealer_value > user_max_value:
                 user_has_won = False  # Dealer wins
                 break
+            dealer_hand.draw()
 
         # Make sure we got a value and I didn't mess anything up
         if user_has_won is None:
