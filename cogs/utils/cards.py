@@ -27,7 +27,7 @@ class Card(object):
         (3, "CLUB",): "<:three_of_clubs:613975945015197697>",
         (3, "DIAMOND",): "<:three_of_diamonds:614064395491868703>",
         (3, "HEART",): "<:three_of_hearts:613989868267241475>",
-        (3, "SPADE",) "<:three_of_spades:614065256687337483>"
+        (3, "SPADE",): "<:three_of_spades:614065256687337483>",
         (4, "CLUB",): "<:four_of_clubs:613975944545304590>",
         (4, "DIAMOND",): "<:four_of_diamonds:614064395156455454>",
         (4, "HEART",): "<:four_of_hearts:613989868317573120>",
@@ -68,7 +68,9 @@ class Card(object):
         (13, "DIAMOND",): "<:king_of_diamonds:614064395328159763>",
         (13, "HEART",): "<:king_of_hearts:613989868380487710>",
         (13, "SPADE",): "<:king_of_spades:614064880076718091>",
+        None: "<:card_back:834578062514585652>",
     }
+    CARD_BACK = EMOJI_CARDS[None]
     __slots__ = ("_value", "suit",)
 
     def __init__(self, value: int, suit: str):
@@ -150,7 +152,7 @@ class Deck(object):
         self._cards: typing.List[Card] = cards or list()
 
     @classmethod
-    def create_deck(cls) -> "Deck":
+    def create_deck(cls, shuffle: typing.Union[bool, random.Random] = True) -> "Deck":
         """
         Make a deck of cards, unshuffled, containing all 52 cards in a deck.
         """
@@ -159,7 +161,13 @@ class Deck(object):
         for v in range(1, 14):
             for s in Card.VALID_SUITS:
                 cards.append(Card(v, s))
-        return cls(cards)
+        v = cls(cards)
+        if shuffle:
+            if isinstance(shuffle, random.Random):
+                v.shuffle(shuffle)
+            else:
+                v.shuffle()
+        return v
 
     def shuffle(self, *, cls: random.Random = None):
         """
@@ -185,11 +193,25 @@ class Deck(object):
 
 class Hand(Deck):
 
+    def __init__(self, deck: Deck):
+        self.deck = deck
+        super().__init__()
+
     @classmethod
     def create_deck(cls):
         return cls()
 
-    def add_card(self, card: Card) -> None:
+    def draw(self, amount: int = 1) -> typing.List[Card]:
+        """
+        Draws a card from the deck and adds it to the current hand.
+        """
+
+        cards = self.deck.draw(amount)
+        for c in cards:
+            self.add(c)
+        return cards
+
+    def add(self, card: Card) -> None:
         """
         Adds a single card to your hand.
         """
@@ -203,7 +225,7 @@ class Hand(Deck):
 
         self._cards.sort(key=operator.attrgetter("_value", "suit",))
 
-    def remove_card(self, card: Card) -> None:
+    def remove(self, card: Card) -> None:
         """
         Removes a card from your hand.
         """
@@ -213,11 +235,26 @@ class Hand(Deck):
     def __str__(self):
         return self._cards
 
-    def get_values(self):
+    @property
+    def values(self):
         """
         Get the possible values of your current hand.
         """
 
         hand_values = [i.values for i in self._cards]
-        hand_value_permutations = list(itertools.product(hand_values))
-        return [sum(i) for i in hand_value_permutations]
+        hand_value_permutations = list(itertools.product(*hand_values))
+        return sorted(list(set([sum(i) for i in hand_value_permutations])), reverse=True)
+
+    def display(self, show_cards: typing.Union[bool, int] = True):
+        """
+        Shows the emojis for each of the cards in your hand.
+        """
+
+        if show_cards is True:
+            return "".join([i.emoji for i in self._cards])
+        elif show_cards is False:
+            return "".join([Card.CARD_BACK for i in self._cards])
+        else:
+            shown_cards = "".join([i.emoji for i in range(show_cards)])
+            non_shown_cards = "".join([Card.CARD_BACK for i in range(len(self._cards) - show_cards)])
+            return shown_cards + non_shown_cards
