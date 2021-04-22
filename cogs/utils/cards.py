@@ -256,6 +256,6 @@ class Hand(Deck):
         elif show_cards is False:
             return "".join([Card.CARD_BACK for i in self._cards])
         else:
-            shown_cards = "".join([i.emoji for i in range(show_cards)])
+            shown_cards = "".join([self._cards[i].emoji for i in range(show_cards)])
             non_shown_cards = "".join([Card.CARD_BACK for i in range(len(self._cards) - show_cards)])
             return shown_cards + non_shown_cards
