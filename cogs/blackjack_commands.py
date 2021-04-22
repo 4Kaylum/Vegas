@@ -85,15 +85,12 @@ class BlackjackCommands(utils.Cog):
         user_has_won = None
         while True:
             try:
-                max_dealer_value = dealer_hand.get_values(max_value=21)
+                max_dealer_value = max(dealer_hand.get_values(max_value=21))
                 if max_dealer_value >= user_max_value:
-                    user_has_won = False
+                    user_has_won = False  # Dealer wins
                     break
             except ValueError:
                 user_has_won = True  # Dealer went bust
-                break
-            if max_dealer_value > user_max_value:
-                user_has_won = False  # Dealer wins
                 break
             dealer_hand.draw()
 
