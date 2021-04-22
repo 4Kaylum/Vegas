@@ -103,6 +103,12 @@ class BlackjackCommands(utils.Cog):
         if user_has_won is None:
             raise Exception("Failed to run the command properly.")
 
+        # Don't error if the user got a blackjack
+        if message:
+            send_method = message.edit
+        else:
+            send_method = ctx.send
+
         # Output something for the user winning
         if user_has_won:
             embed = utils.Embed(colour=discord.Colour.green())
@@ -112,7 +118,8 @@ class BlackjackCommands(utils.Cog):
                 embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]})", inline=False)
             embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=False)
             embed.add_field("Result", "You won! :D", inline=False)
-            await message.edit(embed=embed)
+
+            await send_method(embed=embed)
             try:
                 await message.clear_reactions()
             except discord.HTTPException:
@@ -124,7 +131,7 @@ class BlackjackCommands(utils.Cog):
         embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values(max_value=21)[0]})", inline=False)
         embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=False)
         embed.add_field("Result", "You lost :c", inline=False)
-        await message.edit(embed=embed)
+        await send_method(embed=embed)
         try:
             await message.clear_reactions()
         except discord.HTTPException:
