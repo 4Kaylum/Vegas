@@ -242,7 +242,7 @@ class Hand(Deck):
         hand_values = [i.get_values() for i in self._cards]
         hand_value_permutations = list(itertools.product(*hand_values))
         v = sorted(list(set([sum(i) for i in hand_value_permutations])), reverse=True)
-        cast = cast or lambda x: x
+        cast = cast or (lambda x: x)
         return [cast(i) for i in v]
 
     def display(self, show_cards: typing.Union[bool, int] = True):
