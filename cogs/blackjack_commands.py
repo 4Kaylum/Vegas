@@ -81,7 +81,7 @@ class BlackjackCommands(utils.Cog):
             user_hand.draw()
 
         # Let's draw until we get higher than the user
-        user_max_value = user_hand.get_values(max_value=21)
+        user_max_value = max(user_hand.get_values(max_value=21))
         user_has_won = None
         while True:
             try:
