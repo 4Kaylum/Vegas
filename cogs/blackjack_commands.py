@@ -74,7 +74,7 @@ class BlackjackCommands(utils.Cog):
             # See if they want to stand
             done = done.pop().result()
             changed_emoji = str(done.emoji)
-            if done == valid_emojis[1]:
+            if changed_emoji == valid_emojis[1]:
                 break
 
             # See if they want to hit
@@ -104,6 +104,7 @@ class BlackjackCommands(utils.Cog):
             embed = utils.Embed(colour=discord.Colour.green())
             embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({', '.join(dealer_hand.get_values(cast=str))}", inline=False)
             embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
+            embed.description = "You won! :D"
             await message.edit(embed=embed)
             try:
                 await message.clear_reactions()
@@ -115,6 +116,7 @@ class BlackjackCommands(utils.Cog):
         embed = utils.Embed(colour=discord.Colour.green())
         embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({' '.join(dealer_hand.get_values(cast=str))}", inline=False)
         embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
+        embed.description = "You lost :c"
         await message.edit(embed=embed)
         try:
             await message.clear_reactions()
