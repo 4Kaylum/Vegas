@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 import voxelbotutils as utils
 
-from cogs.utils import localutils
+from cogs import utils as localutils
 
 
 class BlackjackCommands(utils.Cog):
