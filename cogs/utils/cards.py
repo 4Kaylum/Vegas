@@ -85,8 +85,7 @@ class Card(object):
         if self.suit not in self.VALID_SUITS:
             raise ValueError("Given value %s for suit was not valid - %s", self.suit, self.VALID_SUITS)
 
-    @property
-    def values(self) -> typing.List[int]:
+    def get_values(self) -> typing.List[int]:
         if self._value == 1:
             return [1, 11,]
         elif self._value == 11:
@@ -120,27 +119,27 @@ class Card(object):
     def __ge__(self, other):
         if not isinstance(other, self.__class__):
             raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
-        return max(self.values) >= max(other.values)
+        return max(self.get_values()) >= max(other.get_values())
 
     def __gt__(self, other):
         if not isinstance(other, self.__class__):
             raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
-        return max(self.values) > max(other.values)
+        return max(self.get_values()) > max(other.get_values())
 
     def __le__(self, other):
         if not isinstance(other, self.__class__):
             raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
-        return max(self.values) <= max(other.values)
+        return max(self.get_values()) <= max(other.get_values())
 
     def __lt__(self, other):
         if not isinstance(other, self.__class__):
             raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
-        return max(self.values) < max(other.values)
+        return max(self.get_values()) < max(other.get_values())
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
-        return max(self.values) == max(other.values)
+        return max(self.get_values()) == max(other.get_values())
 
     def __hash__(self):
         return hash((self._value, self.suit,))
@@ -235,15 +234,16 @@ class Hand(Deck):
     def __str__(self):
         return self._cards
 
-    @property
-    def values(self):
+    def get_values(self, *, cast: typing.Callable[[int], typing.Any] = None):
         """
         Get the possible values of your current hand.
         """
 
-        hand_values = [i.values for i in self._cards]
+        hand_values = [i.get_values() for i in self._cards]
         hand_value_permutations = list(itertools.product(*hand_values))
-        return sorted(list(set([sum(i) for i in hand_value_permutations])), reverse=True)
+        v = sorted(list(set([sum(i) for i in hand_value_permutations])), reverse=True)
+        cast = cast or lambda x: x
+        return [cast(i) for i in v]
 
     def display(self, show_cards: typing.Union[bool, int] = True):
         """
