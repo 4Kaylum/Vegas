@@ -83,7 +83,8 @@ class BlackjackCommands(utils.Cog):
         while True:
             try:
                 max_dealer_value = max([i for i in dealer_hand.values if i <= 21])
-                if max_dealer_value >= user_max_value
+                if max_dealer_value >= user_max_value:
+                    raise ValueError()
             except ValueError:
                 user_has_won = True  # Dealer went bust
                 break
