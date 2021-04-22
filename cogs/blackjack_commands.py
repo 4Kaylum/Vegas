@@ -46,7 +46,7 @@ class BlackjackCommands(utils.Cog):
             embed.add_field("Dealer Hand", dealer_hand.display(show_cards=False), inline=False)
             embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str, max_value=21))})", inline=False)
             if message is None:
-                message = await ctx.send(embed=embed)
+                message = await ctx.reply(embed=embed)
                 for e in valid_emojis:
                     await message.add_reaction(e)
             else:
@@ -103,7 +103,7 @@ class BlackjackCommands(utils.Cog):
         if user_has_won:
             embed = utils.Embed(colour=discord.Colour.green())
             if min(dealer_hand.get_values()) > 21:
-                embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]} - bust)", inline=False)
+                embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[-1]} - bust)", inline=False)
             else:
                 embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]})", inline=False)
             embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=False)
