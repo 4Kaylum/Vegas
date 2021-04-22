@@ -32,7 +32,7 @@ class BlackjackCommands(utils.Cog):
             if min(user_hand.get_values()) > 21:
                 embed = utils.Embed(colour=discord.Colour.red())
                 embed.add_field("Dealer Hand", dealer_hand.display(show_cards=False), inline=False)
-                embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
+                embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()[0]} - bust)", inline=False)
                 await message.edit(embed=embed)
                 try:
                     await message.clear_reactions()
@@ -43,7 +43,7 @@ class BlackjackCommands(utils.Cog):
             # Output the hands to be used
             embed = utils.Embed(colour=0xfffffe)
             embed.add_field("Dealer Hand", dealer_hand.display(show_cards=False), inline=False)
-            embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values(cast=str))})", inline=False)
+            embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str, max_value=21))})", inline=False)
             if message is None:
                 message = await ctx.send(embed=embed)
                 for e in valid_emojis:
@@ -81,11 +81,11 @@ class BlackjackCommands(utils.Cog):
             user_hand.draw()
 
         # Let's draw until we get higher than the user
-        user_max_value = max([i for i in user_hand.get_values() if i <= 21])
+        user_max_value = user_hand.get_values(max_value=21)
         user_has_won = None
         while True:
             try:
-                max_dealer_value = max([i for i in dealer_hand.get_values() if i <= 21])
+                max_dealer_value = dealer_hand.get_values(max_value=21)
                 if max_dealer_value >= user_max_value:
                     raise ValueError()
             except ValueError:
@@ -103,9 +103,11 @@ class BlackjackCommands(utils.Cog):
         # Output something for the user winning
         if user_has_won:
             embed = utils.Embed(colour=discord.Colour.green())
-            bust_string = ' - bust' if min(dealer_hand.get_values()) > 21 else ''
-            embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({', '.join(dealer_hand.get_values(cast=str))}{bust_string})", inline=False)
-            embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str))})", inline=False)
+            if min(dealer_hand.get_values()) > 21:
+                embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]} - bust)", inline=False)
+            else:
+                embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]})", inline=False)
+            embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=False)
             embed.description = "You won! :D"
             await message.edit(embed=embed)
             try:
@@ -116,8 +118,8 @@ class BlackjackCommands(utils.Cog):
 
         # Output something for the dealer winning
         embed = utils.Embed(colour=discord.Colour.green())
-        embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({' '.join(dealer_hand.get_values(cast=str))})", inline=False)
-        embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values(cast=str))})", inline=False)
+        embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values(max_value=21)[0]})", inline=False)
+        embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=False)
         embed.description = "You lost :c"
         await message.edit(embed=embed)
         try:

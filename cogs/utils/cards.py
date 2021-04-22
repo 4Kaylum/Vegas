@@ -234,16 +234,17 @@ class Hand(Deck):
     def __str__(self):
         return self._cards
 
-    def get_values(self, *, cast: typing.Callable[[int], typing.Any] = None):
+    def get_values(self, *, cast: typing.Callable[[int], typing.Any] = None, max_value: int = None):
         """
         Get the possible values of your current hand.
         """
 
+        max_value = max_value or float("inf")
         hand_values = [i.get_values() for i in self._cards]
         hand_value_permutations = list(itertools.product(*hand_values))
         v = sorted(list(set([sum(i) for i in hand_value_permutations])), reverse=True)
         cast = cast or (lambda x: x)
-        return [cast(i) for i in v]
+        return [cast(i) for i in sorted(v, reverse=True) if i <= max_value]
 
     def display(self, show_cards: typing.Union[bool, int] = True):
         """
