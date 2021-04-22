@@ -31,7 +31,7 @@ class BlackjackCommands(utils.Cog):
             # See if the user went bust
             if min(user_hand.get_values()) > 21:
                 embed = utils.Embed(colour=discord.Colour.red())
-                embed.add_field("Dealer Hand", dealer_hand.display(show_cards=False), inline=False)
+                embed.add_field("Dealer Hand", dealer_hand.display(show_cards=1), inline=False)
                 embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()[0]} - bust)", inline=False)
                 embed.description = "You lost :c"
                 await message.edit(embed=embed)
@@ -43,7 +43,7 @@ class BlackjackCommands(utils.Cog):
 
             # Output the hands to be used
             embed = utils.Embed(colour=0xfffffe)
-            embed.add_field("Dealer Hand", dealer_hand.display(show_cards=False), inline=False)
+            embed.add_field("Dealer Hand", dealer_hand.display(show_cards=1), inline=False)
             embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str, max_value=21))})", inline=False)
             if message is None:
                 message = await ctx.reply(embed=embed)
