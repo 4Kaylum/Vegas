@@ -40,6 +40,8 @@ class BlackjackCommands(utils.Cog):
                 except discord.HTTPException:
                     pass
                 return
+            if max(user_hand.get_values(max_value=21)) == 21:
+                break
 
             # Output the hands to be used
             embed = utils.Embed(colour=0xfffffe)
