@@ -33,7 +33,7 @@ class BlackjackCommands(utils.Cog):
                 embed = utils.Embed(colour=discord.Colour.red())
                 embed.add_field("Dealer Hand", dealer_hand.display(show_cards=1), inline=False)
                 embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()[-1]} - bust)", inline=False)
-                embed.description = "You lost :c"
+                embed.add_field("Result", "You lost :c", inline=False)
                 await message.edit(embed=embed)
                 try:
                     await message.clear_reactions()
@@ -47,6 +47,7 @@ class BlackjackCommands(utils.Cog):
             embed = utils.Embed(colour=0xfffffe)
             embed.add_field("Dealer Hand", dealer_hand.display(show_cards=1), inline=False)
             embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str, max_value=21))})", inline=False)
+            embed.set_footer(f"{valid_emojis[0]} Hit | {valid_emojis[1]} Stand")
             if message is None:
                 message = await ctx.reply(embed=embed)
                 for e in valid_emojis:
@@ -110,7 +111,7 @@ class BlackjackCommands(utils.Cog):
             else:
                 embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]})", inline=False)
             embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=False)
-            embed.description = "You won! :D"
+            embed.add_field("Result", "You won! :D", inline=False)
             await message.edit(embed=embed)
             try:
                 await message.clear_reactions()
@@ -122,7 +123,7 @@ class BlackjackCommands(utils.Cog):
         embed = utils.Embed(colour=discord.Colour.red())
         embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values(max_value=21)[0]})", inline=False)
         embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=False)
-        embed.description = "You lost :c"
+        embed.add_field("Result", "You lost :c", inline=False)
         await message.edit(embed=embed)
         try:
             await message.clear_reactions()
