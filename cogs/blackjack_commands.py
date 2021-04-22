@@ -102,7 +102,7 @@ class BlackjackCommands(utils.Cog):
         # Output something for the user winning
         if user_has_won:
             embed = utils.Embed(colour=discord.Colour.green())
-            embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({', '.join(dealer_hand.get_values(cast=str))}", inline=False)
+            embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({', '.join(dealer_hand.get_values(cast=str))})", inline=False)
             embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
             embed.description = "You won! :D"
             await message.edit(embed=embed)
@@ -114,8 +114,8 @@ class BlackjackCommands(utils.Cog):
 
         # Output something for the dealer winning
         embed = utils.Embed(colour=discord.Colour.green())
-        embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({' '.join(dealer_hand.get_values(cast=str))}", inline=False)
-        embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
+        embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({' '.join(dealer_hand.get_values(cast=str))})", inline=False)
+        embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values(cast=str))})", inline=False)
         embed.description = "You lost :c"
         await message.edit(embed=embed)
         try:
