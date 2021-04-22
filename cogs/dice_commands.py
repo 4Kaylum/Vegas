@@ -32,7 +32,7 @@ class DiceCommands(utils.Cog):
             win_amount = -bet_amount
 
         # Tell the user all is well
-        self.bot.dispatch("transaction", ctx.author, currency, bet_amount, "BLACKJACK", user_won)
+        self.bot.dispatch("transaction", ctx.author, currency, bet_amount, ctx.command.name.upper(), user_won)
         return await ctx.send(embed=embed)
 
     @utils.command(name="55x2")
