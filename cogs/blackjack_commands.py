@@ -9,7 +9,7 @@ from cogs import utils as localutils
 
 class BlackjackCommands(utils.Cog):
 
-    @utils.command()
+    @utils.command(aliases=['bj'])
     @commands.bot_has_permissions(send_messages=True, embed_links=True, external_emojis=True, add_reactions=True)
     async def blackjack(self, ctx: utils.Context, bet_amount: int = 0):
         """
