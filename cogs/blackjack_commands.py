@@ -82,6 +82,7 @@ class BlackjackCommands(utils.Cog):
 
             # See if they want to hit
             user_hand.draw()
+            await asyncio.sleep(0.2)
 
         # Let's draw until we get higher than the user
         user_max_value = max(user_hand.get_values(max_value=21))
