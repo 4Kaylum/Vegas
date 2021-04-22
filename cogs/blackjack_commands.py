@@ -72,6 +72,7 @@ class BlackjackCommands(utils.Cog):
                 return await ctx.reply("Timed out waiting for your response.", ignore_error=True)
 
             # See if they want to stand
+            done = list(done)[0]
             changed_emoji = str(done.emoji)
             if done == valid_emojis[1]:
                 break
