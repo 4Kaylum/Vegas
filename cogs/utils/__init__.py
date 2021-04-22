@@ -1,1 +1,1 @@
-from cards import Card, Deck, Hand
+from cogs.utils.cards import Card, Deck, Hand
