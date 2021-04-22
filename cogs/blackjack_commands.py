@@ -12,7 +12,7 @@ class BlackjackCommands(utils.Cog):
     @utils.command(aliases=['bj'])
     @commands.bot_has_permissions(send_messages=True, embed_links=True, external_emojis=True, add_reactions=True)
     @commands.guild_only()
-    async def blackjack(self, ctx: utils.Context, bet_amount: int = 0, currency: str = None):
+    async def blackjack(self, ctx: utils.Context, bet_amount: utils.converters.NumberConverter = 0, currency: str = None):
         """
         Lets you play a blackjack game against the bot.
         """
