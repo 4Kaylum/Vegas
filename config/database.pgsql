@@ -25,3 +25,34 @@ CREATE TABLE IF NOT EXISTS channel_list(
     value VARCHAR(50),
     PRIMARY KEY (guild_id, channel_id, key)
 );
+
+
+CREATE TABLE IF NOT EXISTS guild_currencies(
+    guild_id BIGINT,
+    currency_name TEXT,
+    short_form TEXT,
+    negative_amount_allowed INTEGER,
+    UNIQUE (guild_id, short_form),
+    PRIMARY KEY (guild_id, currency_name)
+);
+
+
+CREATE TABLE IF NOT EXISTS user_money(
+    user_id BIGINT,
+    guild_id BIGINT,
+    currency_name TEXT,
+    money_amount BIGINT,
+    PRIMARY KEY (user_id, guild_id, currency_name),
+    FOREIGN KEY (guild_id, currency_name) REFERENCES guild_currencies (guild_id, currency_name)
+);
+
+
+CREATE TABLE IF NOT EXISTS transactions(
+    transaction_id SERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    guild_id BIGINT NOT NULL,
+    currency_name TEXT,
+    amount_transferred BIGINT,
+    reason TEXT NOT NULL,
+    win BOOLEAN
+);
