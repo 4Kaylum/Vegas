@@ -22,12 +22,12 @@ class DiceCommands(utils.Cog):
             embed.colour = discord.Colour.green()
             embed.description = "You won! :D"
             if bet_amount:
-                embed.description = f"You won! Added {bet_amount * (2 - 1)} to your account!"
+                embed.description = f"You won! Added **{bet_amount * (2 - 1):,}** to your account! :D"
         else:
             embed.colour = discord.Colour.red()
             embed.description = "You lost :c"
             if bet_amount:
-                embed.description = f"You lost, removed {bet_amount} from your account :c"
+                embed.description = f"You lost, removed **{bet_amount:,}** from your account :c"
 
         # Tell the user all is well
         return await ctx.send(embed=embed)

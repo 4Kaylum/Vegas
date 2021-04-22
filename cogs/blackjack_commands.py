@@ -33,7 +33,10 @@ class BlackjackCommands(utils.Cog):
                 embed = utils.Embed(colour=discord.Colour.red())
                 embed.add_field("Dealer Hand", f"{dealer_hand.display(show_cards=1)} (??)", inline=True)
                 embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()[-1]} - bust)", inline=True)
-                embed.add_field("Result", "You lost :c", inline=False)
+                if bet_amount:
+                    embed.add_field("Result", f"You lost, removed **{bet_amount:,}** from your account :c", inline=False)
+                else:
+                    embed.add_field("Result", "You lost :c", inline=False)
                 self.bot.loop.create_task(message.clear_reactions())
                 return await message.edit(embed=embed)
             if max(user_hand.get_values(max_value=21)) == 21:
@@ -114,14 +117,20 @@ class BlackjackCommands(utils.Cog):
             else:
                 embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]})", inline=True)
             embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=True)
-            embed.add_field("Result", "You won! :D", inline=False)
+            if bet_amount:
+                embed.add_field("Result", f"You won! Added **{bet_amount:,}** to your account! :D", inline=False)
+            else:
+                embed.add_field("Result", "You won! :D", inline=False)
             return await send_method(embed=embed)
 
         # Output something for the dealer winning
         embed = utils.Embed(colour=discord.Colour.red())
         embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values(max_value=21)[0]})", inline=True)
         embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=True)
-        embed.add_field("Result", "You lost :c", inline=False)
+        if bet_amount:
+            embed.add_field("Result", f"You lost, removed **{bet_amount:,}** from your account :c", inline=False)
+        else:
+            embed.add_field("Result", "You lost :c", inline=False)
         return await send_method(embed=embed)
 
 
