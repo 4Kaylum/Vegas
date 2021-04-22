@@ -33,6 +33,7 @@ class BlackjackCommands(utils.Cog):
                 embed = utils.Embed(colour=discord.Colour.red())
                 embed.add_field("Dealer Hand", dealer_hand.display(show_cards=False), inline=False)
                 embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()[0]} - bust)", inline=False)
+                embed.description = "You lost :c"
                 await message.edit(embed=embed)
                 try:
                     await message.clear_reactions()
