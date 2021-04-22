@@ -115,7 +115,7 @@ class BlackjackCommands(utils.Cog):
             return
 
         # Output something for the dealer winning
-        embed = utils.Embed(colour=discord.Colour.green())
+        embed = utils.Embed(colour=discord.Colour.red())
         embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values(max_value=21)[0]})", inline=False)
         embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=False)
         embed.description = "You lost :c"
