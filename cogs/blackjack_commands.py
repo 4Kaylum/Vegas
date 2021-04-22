@@ -32,7 +32,7 @@ class BlackjackCommands(utils.Cog):
             if min(user_hand.get_values()) > 21:
                 embed = utils.Embed(colour=discord.Colour.red())
                 embed.add_field("Dealer Hand", dealer_hand.display(show_cards=False), inline=False)
-                embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values())} - bust)", inline=False)
+                embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
                 await message.edit(embed=embed)
                 try:
                     await message.clear_reactions()
@@ -43,7 +43,7 @@ class BlackjackCommands(utils.Cog):
             # Output the hands to be used
             embed = utils.Embed(colour=0xfffffe)
             embed.add_field("Dealer Hand", dealer_hand.display(show_cards=False), inline=False)
-            embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values())})", inline=False)
+            embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values(cast=str))})", inline=False)
             if message is None:
                 message = await ctx.send(embed=embed)
                 for e in valid_emojis:
