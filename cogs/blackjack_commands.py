@@ -58,7 +58,7 @@ class BlackjackCommands(utils.Cog):
                     payload.message_id == message.id,
                     str(payload.emoji) in valid_emojis,
                 ])
-            done, pending = asyncio.wait(
+            done, pending = await asyncio.wait(
                 [
                     self.bot.wait_for("raw_reaction_add", check=check),
                     self.bot.wait_for("raw_reaction_remove", check=check),
