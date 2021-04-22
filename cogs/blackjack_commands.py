@@ -32,7 +32,7 @@ class BlackjackCommands(utils.Cog):
             if min(user_hand.get_values()) > 21:
                 embed = utils.Embed(colour=discord.Colour.red())
                 embed.add_field("Dealer Hand", dealer_hand.display(show_cards=False), inline=False)
-                embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
+                embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
                 await message.edit(embed=embed)
                 try:
                     await message.clear_reactions()
@@ -72,7 +72,7 @@ class BlackjackCommands(utils.Cog):
                 return await ctx.reply("Timed out waiting for your response.", ignore_error=True)
 
             # See if they want to stand
-            done = list(done)[0]
+            done = done.pop().result()
             changed_emoji = str(done.emoji)
             if done == valid_emojis[1]:
                 break
@@ -102,8 +102,8 @@ class BlackjackCommands(utils.Cog):
         # Output something for the user winning
         if user_has_won:
             embed = utils.Embed(colour=discord.Colour.green())
-            embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({' '.join(dealer_hand.get_values(cast=str))}", inline=False)
-            embed.add_field("Your Hand", f"{user_hand.display()} ({' '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
+            embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({', '.join(dealer_hand.get_values(cast=str))}", inline=False)
+            embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str))} - bust)", inline=False)
             await message.edit(embed=embed)
             try:
                 await message.clear_reactions()
