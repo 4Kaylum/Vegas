@@ -1,6 +1,7 @@
 import random
 
 import discord
+from discord.ext import commands
 import voxelbotutils as utils
 
 
@@ -32,6 +33,7 @@ class DiceCommands(utils.Cog):
         return await ctx.send(embed=embed)
 
     @utils.command(name="55x2")
+    @commands.bot_has_permissions(send_messages=True, embed_links=True)
     async def dice_55x2(self, ctx: utils.Context, *, bet_amount: int = 0):
         """
         Place a bet on a dice roll - any number rolled that's higher than 55 will multiply your bet x2.
@@ -40,6 +42,7 @@ class DiceCommands(utils.Cog):
         await self.roll_dice(ctx, 55, 2, bet_amount)
 
     @utils.command(name="75x3")
+    @commands.bot_has_permissions(send_messages=True, embed_links=True)
     async def dice_75x3(self, ctx: utils.Context, *, bet_amount: int = 0):
         """
         Place a bet on a dice roll - any number rolled that's higher than 75 will multiply your bet x3.
@@ -48,6 +51,7 @@ class DiceCommands(utils.Cog):
         await self.roll_dice(ctx, 75, 3, bet_amount)
 
     @utils.command(name="95x5")
+    @commands.bot_has_permissions(send_messages=True, embed_links=True)
     async def dice_95x5(self, ctx: utils.Context, *, bet_amount: int = 0):
         """
         Place a bet on a dice roll - any number rolled that's higher than 95 will multiply your bet x5.
