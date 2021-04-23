@@ -4,6 +4,8 @@ import discord
 from discord.ext import commands
 import voxelbotutils as utils
 
+from cogs import utils as localutils
+
 
 class DiceCommands(utils.Cog):
 
