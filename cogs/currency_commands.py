@@ -4,6 +4,8 @@ import discord
 from discord.ext import commands
 import voxelbotutils as utils
 
+from cogs import utils as localutils
+
 
 class CurrencyCommands(utils.Cog):
 
@@ -47,7 +49,7 @@ class CurrencyCommands(utils.Cog):
         embed.description = "\n".join(currencies)
         return await ctx.send(embed=embed)
 
-    @currency.command(name="create", aliases=['make', 'add', 'new'])
+    @currency.command(name="create", aliases=['make', 'new'])
     @commands.has_guild_permissions(manage_guild=True)
     @commands.bot_has_permissions(send_messages=True)
     async def currency_create(self, ctx: utils.Context):
@@ -149,6 +151,38 @@ class CurrencyCommands(utils.Cog):
                     ctx.guild.id, currency_name_message.content, currency_short_message.content, int(currency_debt_message.content),
                 )
         return await ctx.send("Added a new currency to your server!")
+
+    @currency.command(name="add")
+    @commands.has_guild_permissions(manage_guild=True)
+    @commands.bot_has_permissions(add_reactions=True)
+    async def currency_add(self, ctx: utils.Context, user: discord.Member, *, amount: localutils.CurrencyAmount):
+        """
+        Give some currency to a user.
+        """
+
+        async with self.bot.database() as db:
+            await db(
+                """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
+                ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
+                money_amount=user_money.money_amount+excluded.money_amount""",
+            )
+        await ctx.okay()
+
+    @currency.command(name="remove")
+    @commands.has_guild_permissions(manage_guild=True)
+    @commands.bot_has_permissions(add_reactions=True)
+    async def currency_remove(self, ctx: utils.Context, user: discord.Member, *, amount: localutils.CurrencyAmount):
+        """
+        Remove some currency from a user.
+        """
+
+        async with self.bot.database() as db:
+            await db(
+                """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
+                ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
+                money_amount=user_money.money_amount+excluded.money_amount""",
+            )
+        await ctx.okay()
 
 
 def setup(bot: utils.Bot):
