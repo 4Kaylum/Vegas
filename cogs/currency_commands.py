@@ -126,18 +126,17 @@ class CurrencyCommands(utils.Cog):
             try:
                 currency_debt_message = await self.bot.wait_for("message", check=check, timeout=60)
                 assert currency_debt_message.content
-                assert int(currency_debt_message.content)
+                int(currency_debt_message.content)
                 assert int(currency_debt_message.content) >= 0
                 break
             except asyncio.TimeoutError:
                 return await ctx.send("Timed out on adding a new currency to the guild.", ignore_error=True)
-            except AssertionError:
+            except (AssertionError, ValueError):
                 await currency_debt_message.reply("This isn't a valid number - please provide another one.")
         else:
             return await ctx.send("You failed giving a valid currency debt amount too many times - please try again later.")
 
         # Add the new currency to the server
-        await ctx.send("Adding currency...")
         async with ctx.typing():
             async with self.bot.database() as db:
                 await db(
