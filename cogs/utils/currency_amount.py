@@ -45,10 +45,6 @@ class CurrencyAmount(object):
 
 class BetAmount(CurrencyAmount):
 
-    def __init__(self, amount: int = 0, currency: str = None):
-        self.amount = amount
-        self.currency = currency
-
     @classmethod
     async def convert(cls, ctx, value):
         """
