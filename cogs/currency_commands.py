@@ -11,7 +11,7 @@ class CurrencyCommands(utils.Cog):
 
     MAX_GUILD_CURRENCIES = 3
 
-    @utils.command()
+    @utils.command(aliases=['bal', 'balance'])
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     @commands.guild_only()
     async def coins(self, ctx: utils.Context, user: discord.Member = None):
