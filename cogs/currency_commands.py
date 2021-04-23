@@ -51,7 +51,8 @@ class CurrencyCommands(utils.Cog):
         embed.set_footer(f"Add new currencies with \"{ctx.clean_prefix}currency create\"")
         currencies = []
         for row in currency_rows:
-            currencies.append(f"* {row['currency_name']}")
+            name = row['currency_name']
+            currencies.append(f"* {name.title() if name.islower() else name}")
         embed.description = "\n".join(currencies)
         return await ctx.send(embed=embed)
 
