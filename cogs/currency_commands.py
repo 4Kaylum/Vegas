@@ -24,7 +24,7 @@ class CurrencyCommands(utils.Cog):
                 """SELECT * FROM guild_currencies LEFT OUTER JOIN
                 (SELECT * FROM user_money WHERE user_money.guild_id=$1 AND user_money.user_id=$2) AS um ON
                 guild_currencies.currency_name=um.currency_name WHERE guild_currencies.guild_id=$1""",
-                ctx.guild.id, ctx.author.id,
+                ctx.guild.id, user.id,
             )
         await ctx.send(rows)
 
