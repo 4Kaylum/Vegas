@@ -11,6 +11,30 @@ class CurrencyCommands(utils.Cog):
 
     MAX_GUILD_CURRENCIES = 3
 
+    @utils.command(aliases=["transfer", "give"])
+    @commands.bot_has_permissions(send_messages=True)
+    @commands.guild_only()
+    async def pay(self, ctx: utils.Context, user: discord.Member, amount: localutils.BetAmount):
+        """
+        Transfers money from the author's account to another user's account
+        """
+        
+        async with self.bot.database() as db:
+            await db(
+                """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
+                ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
+                money_amount=user_money.money_amount+excluded.money_amount""",
+                user.id, ctx.guild.id, amount.currency, amount.amount,
+            )
+            await db(
+                """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
+                ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
+                money_amount=user_money.money_amount+excluded.money_amount""",
+                ctx.author.id, ctx.guild.id, amount.currency, -amount.amount,
+            )
+        
+        await ctx.okay()
+    
     @utils.command()
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     @commands.guild_only()
