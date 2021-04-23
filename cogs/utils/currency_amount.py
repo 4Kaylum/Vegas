@@ -63,6 +63,6 @@ class BetAmount(CurrencyAmount):
                 """SELECT * FROM user_money WHERE user_id=$1 AND guild_id=$2 AND currency_name=$3""",
                 ctx.author.id, ctx.guild.id, new.currency,
             )
-        if not rows or rows['money_amount'] < new.amount:
+        if not rows or rows[0]['money_amount'] < new.amount:
             raise commands.BadArgument("You don't have enough money to make that bet.")
         return new
