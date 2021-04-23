@@ -12,7 +12,7 @@ class BlackjackCommands(utils.Cog):
     @utils.command(aliases=['bj'])
     @commands.bot_has_permissions(send_messages=True, embed_links=True, external_emojis=True, add_reactions=True)
     @commands.guild_only()
-    async def blackjack(self, ctx: utils.Context, bet_amount: utils.converters.NumberConverter = 0, currency: str = None):
+    async def blackjack(self, ctx: utils.Context, *, bet: localutils.CurrencyAmount = None):
         """
         Lets you play a blackjack game against the bot.
         """
@@ -24,6 +24,7 @@ class BlackjackCommands(utils.Cog):
         user_hand: localutils.Hand = localutils.Hand(deck)
         user_hand.draw(2)
         valid_emojis = ["\N{HEAVY PLUS SIGN}", "\N{HEAVY CHECK MARK}"]
+        bet = bet or localutils.CurrencyAmount()
 
         # Ask the user if they want to hit or stand
         message = None
@@ -34,11 +35,11 @@ class BlackjackCommands(utils.Cog):
                 embed = utils.Embed(colour=discord.Colour.red())
                 embed.add_field("Dealer Hand", f"{dealer_hand.display(show_cards=1)} (??)", inline=True)
                 embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()[-1]} - bust)", inline=True)
-                if bet_amount:
-                    embed.add_field("Result", f"You lost, removed **{bet_amount:,}** from your account :c", inline=False)
+                if bet.amount:
+                    embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
                 else:
                     embed.add_field("Result", "You lost :c", inline=False)
-                self.bot.dispatch("transaction", ctx.author, currency, -bet_amount, "BLACKJACK", False)
+                self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
                 self.bot.loop.create_task(message.clear_reactions())
                 return await message.edit(embed=embed)
             if max(user_hand.get_values(max_value=21)) == 21:
@@ -119,22 +120,22 @@ class BlackjackCommands(utils.Cog):
             else:
                 embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]})", inline=True)
             embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=True)
-            if bet_amount:
-                embed.add_field("Result", f"You won! Added **{bet_amount:,}** to your account! :D", inline=False)
+            if bet.amount:
+                embed.add_field("Result", f"You won! Added **{bet.amount:,}** to your account! :D", inline=False)
             else:
                 embed.add_field("Result", "You won! :D", inline=False)
-            self.bot.dispatch("transaction", ctx.author, currency, bet_amount, "BLACKJACK", True)
+            self.bot.dispatch("transaction", ctx.author, bet.currency, bet.amount, "BLACKJACK", True)
             return await send_method(embed=embed)
 
         # Output something for the dealer winning
         embed = utils.Embed(colour=discord.Colour.red())
         embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values(max_value=21)[0]})", inline=True)
         embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=True)
-        if bet_amount:
-            embed.add_field("Result", f"You lost, removed **{bet_amount:,}** from your account :c", inline=False)
+        if bet.amount:
+            embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
         else:
             embed.add_field("Result", "You lost :c", inline=False)
-        self.bot.dispatch("transaction", ctx.author, currency, -bet_amount, "BLACKJACK", False)
+        self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
         return await send_method(embed=embed)
 
 
