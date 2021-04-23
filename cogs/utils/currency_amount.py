@@ -26,7 +26,7 @@ class CurrencyAmount(object):
         # Work out which currency they want to bet
         async with ctx.bot.database() as db:
             if currency_str:
-                rows = await db("SELECT * FROM guild_currencies WHERE guild_id=$1 AND (currency_name=$2 OR short_name=$2)", ctx.guild.id, currency_str)
+                rows = await db("SELECT * FROM guild_currencies WHERE guild_id=$1 AND (currency_name=$2 OR short_form=$2)", ctx.guild.id, currency_str)
                 try:
                     row = rows[0]
                 except KeyError:
