@@ -29,7 +29,8 @@ class CurrencyCommands(utils.Cog):
             )
         embed = utils.Embed(use_random_colour=True)
         for row in rows:
-            embed.add_field(row['currency_name'], row['money_amount'] or 0)
+            name = row['currency_name']
+            embed.add_field(name.title() if name.islower() else name, format(row['money_amount'] or 0, ","))
         await ctx.send(embed=embed)
 
     @utils.group(aliases=['currencies'], invoke_without_command=False)
