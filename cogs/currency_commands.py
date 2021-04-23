@@ -33,6 +33,8 @@ class CurrencyCommands(utils.Cog):
         The parent command to set up the currencies on your guild.
         """
 
+        if ctx.invoked_subcommand is not None:
+            return
         async with self.bot.database() as db:
             currency_rows = await db("""SELECT * FROM guild_currencies WHERE guild_id=$1 ORDER BY UPPER(currency_name) ASC""", ctx.guild.id)
         if not currency_rows:
