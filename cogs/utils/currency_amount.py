@@ -61,7 +61,7 @@ class BetAmount(CurrencyAmount):
         async with ctx.bot.database() as db:
             rows = await db(
                 """SELECT * FROM user_money WHERE user_id=$1 AND guild_id=$2 AND currency_name=$3""",
-                user.id, ctx.guild.id, new.currency,
+                ctx.author.id, ctx.guild.id, new.currency,
             )
         if not rows or rows['money_amount'] < new.amount:
             raise commands.BadArgument("You don't have enough money to make that bet.")
