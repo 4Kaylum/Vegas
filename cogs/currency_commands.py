@@ -165,6 +165,7 @@ class CurrencyCommands(utils.Cog):
                 """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
                 ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
                 money_amount=user_money.money_amount+excluded.money_amount""",
+                user.id, ctx.guild.id, amount.currency, amount.amount,
             )
         await ctx.okay()
 
@@ -181,6 +182,7 @@ class CurrencyCommands(utils.Cog):
                 """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
                 ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
                 money_amount=user_money.money_amount+excluded.money_amount""",
+                user.id, ctx.guild.id, amount.currency, amount.amount,
             )
         await ctx.okay()
 
