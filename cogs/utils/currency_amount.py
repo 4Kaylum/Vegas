@@ -41,3 +41,28 @@ class CurrencyAmount(object):
 
         # And return an object
         return cls(amount, row['currency_name'])
+
+
+class BetAmount(CurrencyAmount):
+
+    def __init__(self, amount: int = 0, currency: str = None):
+        self.amount = amount
+        self.currency = currency
+
+    @classmethod
+    async def convert(cls, ctx, value):
+        """
+        Grab the amount of money that the user wants to bet.
+        """
+
+        new = await super().convert(ctx, value)
+        if new.amount <= 0 or new.currency is None:
+            return new
+        async with ctx.bot.database() as db:
+            rows = await db(
+                """SELECT * FROM user_money WHERE user_id=$1 AND guild_id=$2 AND currency_name=$3""",
+                user.id, ctx.guild.id, new.currency,
+            )
+        if not rows or rows['money_amount'] < new.amount:
+            raise commands.BadArgument("You don't have enough money to make that bet.")
+        return new

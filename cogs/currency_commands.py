@@ -42,7 +42,7 @@ class CurrencyCommands(utils.Cog):
         if not currency_rows:
             return await ctx.send(f"There are no currencies set up for this guild! Use the `{ctx.clean_prefix}currency create` command to add a new one.")
         embed = utils.Embed(colour=0x1)
-        embed.set_footer("Add new currencies with \"{ctx.clean_prefix}currency create\"")
+        embed.set_footer(f"Add new currencies with \"{ctx.clean_prefix}currency create\"")
         currencies = []
         for row in currency_rows:
             currencies.append(f"* {row['currency_name']}")
@@ -182,7 +182,7 @@ class CurrencyCommands(utils.Cog):
                 """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
                 ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
                 money_amount=user_money.money_amount+excluded.money_amount""",
-                user.id, ctx.guild.id, amount.currency, amount.amount,
+                user.id, ctx.guild.id, amount.currency, -amount.amount,
             )
         await ctx.okay()
 
