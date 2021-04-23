@@ -12,6 +12,7 @@ class CurrencyCommands(utils.Cog):
     MAX_GUILD_CURRENCIES = 3
 
     @utils.command()
+    @commands.bot_has_permissions(send_messages=True, embed_links=True)
     @commands.guild_only()
     async def coins(self, ctx: utils.Context, user: discord.Member = None):
         """
@@ -21,15 +22,19 @@ class CurrencyCommands(utils.Cog):
         user = user or ctx.author
         async with self.bot.database() as db:
             rows = await db(
-                """SELECT * FROM guild_currencies LEFT OUTER JOIN
+                """SELECT guild_currencies.currency_name, um.money_amount FROM guild_currencies LEFT OUTER JOIN
                 (SELECT * FROM user_money WHERE user_money.guild_id=$1 AND user_money.user_id=$2) AS um ON
                 guild_currencies.currency_name=um.currency_name WHERE guild_currencies.guild_id=$1""",
                 ctx.guild.id, user.id,
             )
-        await ctx.send(rows)
+        embed = utils.Embed(use_random_colour=True)
+        for row in rows:
+            embed.add_field(row['currency_name'], row['money_amount'] or 0)
+        await ctx.send(embed=embed)
 
     @utils.group(aliases=['currencies'], invoke_without_command=False)
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
+    @commands.guild_only()
     async def currency(self, ctx: utils.Context):
         """
         The parent command to set up the currencies on your guild.
@@ -52,6 +57,7 @@ class CurrencyCommands(utils.Cog):
     @currency.command(name="create", aliases=['make', 'new'])
     @commands.has_guild_permissions(manage_guild=True)
     @commands.bot_has_permissions(send_messages=True)
+    @commands.guild_only()
     async def currency_create(self, ctx: utils.Context):
         """
         Add a new currency to your guild.
@@ -126,8 +132,24 @@ class CurrencyCommands(utils.Cog):
         else:
             return await ctx.send("You failed giving a valid currency short name too many times - please try again later.")
 
-        # Ask how much debt the user can go into
-        await ctx.send("""How much debt do you want users to be able to go into with this currency? Use "0" for no debt, or a number for any amount.""")
+        # # Ask how much debt the user can go into
+        # await ctx.send("""How much debt do you want users to be able to go into with this currency? Use "0" for no debt, or a number for any amount.""")
+        # for _ in range(3):
+        #     try:
+        #         currency_debt_message = await self.bot.wait_for("message", check=check, timeout=60)
+        #         assert currency_debt_message.content
+        #         int(currency_debt_message.content)
+        #         assert int(currency_debt_message.content) >= 0
+        #         break
+        #     except asyncio.TimeoutError:
+        #         return await ctx.send("Timed out on adding a new currency to the guild.", ignore_error=True)
+        #     except (AssertionError, ValueError):
+        #         await currency_debt_message.reply("This isn't a valid number - please provide another one.")
+        # else:
+        #     return await ctx.send("You failed giving a valid currency debt amount too many times - please try again later.")
+
+        # Ask if we should add a daily command
+        await ctx.send("""Do you want there to be a "daily" command available for this currency, where users can get between 9k and 13k every day?""")
         for _ in range(3):
             try:
                 currency_debt_message = await self.bot.wait_for("message", check=check, timeout=60)
@@ -148,13 +170,14 @@ class CurrencyCommands(utils.Cog):
                 await db(
                     """INSERT INTO guild_currencies (guild_id, currency_name, short_form, negative_amount_allowed)
                     VALUES ($1, $2, $3, $4)""",
-                    ctx.guild.id, currency_name_message.content, currency_short_message.content, int(currency_debt_message.content),
+                    ctx.guild.id, currency_name_message.content, currency_short_message.content, 0,
                 )
         return await ctx.send("Added a new currency to your server!")
 
     @currency.command(name="add")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.bot_has_permissions(add_reactions=True)
+    @commands.guild_only()
     async def currency_add(self, ctx: utils.Context, user: discord.Member, *, amount: localutils.CurrencyAmount):
         """
         Give some currency to a user.
@@ -172,6 +195,7 @@ class CurrencyCommands(utils.Cog):
     @currency.command(name="remove")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.bot_has_permissions(add_reactions=True)
+    @commands.guild_only()
     async def currency_remove(self, ctx: utils.Context, user: discord.Member, *, amount: localutils.CurrencyAmount):
         """
         Remove some currency from a user.
