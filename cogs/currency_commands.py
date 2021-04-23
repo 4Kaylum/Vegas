@@ -46,6 +46,8 @@ class CurrencyCommands(utils.Cog):
         return await ctx.send(embed=embed)
 
     @currency.command(name="create", aliases=['make', 'add', 'new'])
+    @commands.has_guild_permissions(manage_guild=True)
+    @commands.bot_has_permissions(send_messages=True)
     async def currency_create(self, ctx: utils.Context):
         """
         Add a new currency to your guild.
