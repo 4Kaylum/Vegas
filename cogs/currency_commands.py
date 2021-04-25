@@ -265,7 +265,7 @@ class CurrencyCommands(utils.Cog):
         description_list = []
         for currency, amount in changed_daily.items():
             currency_name = currency.title() if currency.lower() == currency else currency
-            description_list.append(f"**{currency_name}**")
+            description_list.append(f"**{currency_name}** - {amount}")
         embed.description = "\n".join(description_list)
         return await ctx.send(embed=embed)
 
