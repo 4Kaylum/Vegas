@@ -1,4 +1,5 @@
 import asyncio
+import random
 
 import discord
 from discord.ext import commands
@@ -55,7 +56,8 @@ class CurrencyCommands(utils.Cog):
         embed = utils.Embed(use_random_colour=True)
         for row in rows:
             name = row['currency_name']
-            embed.add_field(name.title() if name.islower() else name, format(row['money_amount'] or 0, ","))
+            currency_name = name.title() if name.lower() == name else name
+            embed.add_field(currency_name, format(row['money_amount'] or 0, ","))
         await ctx.send(embed=embed)
 
     @utils.group(aliases=['currencies'], invoke_without_command=False)
@@ -77,13 +79,14 @@ class CurrencyCommands(utils.Cog):
         currencies = []
         for row in currency_rows:
             name = row['currency_name']
-            currencies.append(f"* {name.title() if name.islower() else name}")
+            currency_name = name.title() if name.lower() == name else name
+            currencies.append(f"* {currency_name}")
         embed.description = "\n".join(currencies)
         return await ctx.send(embed=embed)
 
     @currency.command(name="create", aliases=['make', 'new'])
     @commands.has_guild_permissions(manage_guild=True)
-    @commands.bot_has_permissions(send_messages=True)
+    @commands.bot_has_permissions(send_messages=True, add_reactions=True)
     @commands.guild_only()
     async def currency_create(self, ctx: utils.Context):
         """
@@ -95,6 +98,7 @@ class CurrencyCommands(utils.Cog):
             currency_rows = await db("""SELECT * FROM guild_currencies WHERE guild_id=$1""", ctx.guild.id)
         if len(currency_rows) >= self.MAX_GUILD_CURRENCIES:
             return await ctx.send(f"You can only have **{self.MAX_GUILD_CURRENCIES}** currencies per guild.")
+        boolean_emojis = ["\N{HEAVY CHECK MARK}", "\N{HEAVY MULTIPLICATION X}"]
 
         # Set up the wait_for check here because we're gonna use it multiple times
         def check(message):
@@ -102,6 +106,15 @@ class CurrencyCommands(utils.Cog):
                 message.channel.id == ctx.channel.id,
                 message.author.id == ctx.author.id,
             ])
+
+        def reaction_check(message):
+            def wrapper(payload):
+                return all([
+                    payload.message_id == message.id,
+                    payload.user_id == ctx.author.id,
+                    str(payload.emoji) in boolean_emojis,
+                ])
+            return wrapper
 
         # Ask what they want the name of the currency to be
         await ctx.send("""What do you want the _name_ of the currency to be? Examples: "dollars", "pounds", "krona", etc.""")
@@ -159,45 +172,23 @@ class CurrencyCommands(utils.Cog):
         else:
             return await ctx.send("You failed giving a valid currency short name too many times - please try again later.")
 
-        # # Ask how much debt the user can go into
-        # await ctx.send("""How much debt do you want users to be able to go into with this currency? Use "0" for no debt, or a number for any amount.""")
-        # for _ in range(3):
-        #     try:
-        #         currency_debt_message = await self.bot.wait_for("message", check=check, timeout=60)
-        #         assert currency_debt_message.content
-        #         int(currency_debt_message.content)
-        #         assert int(currency_debt_message.content) >= 0
-        #         break
-        #     except asyncio.TimeoutError:
-        #         return await ctx.send("Timed out on adding a new currency to the guild.", ignore_error=True)
-        #     except (AssertionError, ValueError):
-        #         await currency_debt_message.reply("This isn't a valid number - please provide another one.")
-        # else:
-        #     return await ctx.send("You failed giving a valid currency debt amount too many times - please try again later.")
-
         # Ask if we should add a daily command
-        await ctx.send("""Do you want there to be a "daily" command available for this currency, where users can get between 9k and 13k every day?""")
-        for _ in range(3):
-            try:
-                currency_debt_message = await self.bot.wait_for("message", check=check, timeout=60)
-                assert currency_debt_message.content
-                int(currency_debt_message.content)
-                assert int(currency_debt_message.content) >= 0
-                break
-            except asyncio.TimeoutError:
-                return await ctx.send("Timed out on adding a new currency to the guild.", ignore_error=True)
-            except (AssertionError, ValueError):
-                await currency_debt_message.reply("This isn't a valid number - please provide another one.")
-        else:
-            return await ctx.send("You failed giving a valid currency debt amount too many times - please try again later.")
+        m = await ctx.send("""Do you want there to be a "daily" command available for this currency, where users can get between 9k and 13k every day?""")
+        for e in boolean_emojis:
+            self.bot.loop.create_task(m.add_reaction(e))
+        try:
+            currency_daily_payload = await self.bot.wait_for("raw_reaction_add", check=reaction_check(m), timeout=60)
+        except asyncio.TimeoutError:
+            return await ctx.send("Timed out on adding a new currency to the guild.", ignore_error=True)
 
         # Add the new currency to the server
         async with ctx.typing():
             async with self.bot.database() as db:
                 await db(
-                    """INSERT INTO guild_currencies (guild_id, currency_name, short_form, negative_amount_allowed)
+                    """INSERT INTO guild_currencies (guild_id, currency_name, short_form, allow_daily_command)
                     VALUES ($1, $2, $3, $4)""",
-                    ctx.guild.id, currency_name_message.content, currency_short_message.content, 0,
+                    ctx.guild.id, currency_name_message.content, currency_short_message.content,
+                    str(currency_daily_payload.emoji) == "\N{HEAVY CHECK MARK}",
                 )
         return await ctx.send("Added a new currency to your server!")
 
@@ -238,6 +229,42 @@ class CurrencyCommands(utils.Cog):
             )
         self.bot.dispatch("transaction", user, amount.currency, -amount.amount, "MODERATOR_INTERVENTION")
         await ctx.okay()
+
+    @utils.command()
+    async def daily(self, ctx: utils.Context):
+        """
+        Get money on the daily.
+        """
+
+        async with self.bot.database() as db:
+            allowed_daily_currencies = await db(
+                """SELECT currency_name FROM guild_currencies WHERE guild_id=$1 AND allow_daily_command=true""",
+                ctx.guild.id,
+            )
+            if not allowed_daily_currencies:
+                return await ctx.send(
+                    """None of the currencies set up on this server allow you to get a daily amount of money.""",
+                )
+            changed_daily = {}
+            for row in allowed_daily_currencies:
+                amount = random.randint(9_000, 13_000)
+                await db(
+                    """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3,
+                    FLOOR(RANDOM() * (13000 - 9000 + 1) + 9000)::INT)
+                    ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
+                    money_amount=user_money.money_amount+excluded.money_amount""",
+                    user.id, ctx.guild.id, row['currency_name'], amount,
+                )
+                changed_daily[row['currency_name']] = amount
+
+        # Make them into an embed
+        embed = utils.Embed(use_random_colour=True)
+        description_list = []
+        for currency, amount in changed_daily.items():
+            currency_name = currency.title() if currency.lower() == currency else currency
+            description_list.append(f"**{currency_name}**")
+        embed.description = "\n".join(description_list)
+        return await ctx.send(embed=embed)
 
 
 def setup(bot: utils.Bot):
