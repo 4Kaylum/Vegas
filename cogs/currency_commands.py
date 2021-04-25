@@ -253,8 +253,7 @@ class CurrencyCommands(utils.Cog):
             for row in allowed_daily_currencies:
                 amount = random.randint(9_000, 13_000)
                 await db(
-                    """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3,
-                    FLOOR(RANDOM() * (13000 - 9000 + 1) + 9000)::INT)
+                    """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
                     ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
                     money_amount=user_money.money_amount+excluded.money_amount""",
                     ctx.author.id, ctx.guild.id, row['currency_name'], amount,
