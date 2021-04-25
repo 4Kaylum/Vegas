@@ -241,7 +241,7 @@ class CurrencyCommands(utils.Cog):
                 """SELECT guild_currencies.currency_name FROM guild_currencies LEFT JOIN user_money
                 ON guild_currencies.currency_name=user_money.currency_name WHERE
                 guild_currencies.guild_id=$1 AND user_money.guild_id=$1 AND
-                guild_currencies.allow_daily_command=true AND user_money.user_id=$2
+                guild_currencies.allow_daily_command=true AND user_money.user_id=$2 AND
                 user_money.last_daily_command<TIMEZONE('UTC', NOW()) - INTERVAL '1 day';""",
                 ctx.guild.id, ctx.author.id,
             )
