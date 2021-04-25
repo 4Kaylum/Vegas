@@ -246,9 +246,7 @@ class CurrencyCommands(utils.Cog):
                 ctx.guild.id, ctx.author.id,
             )
             if not allowed_daily_currencies:
-                return await ctx.send(
-                    """None of the currencies set up on this server allow you to get a daily amount of money.""",
-                )
+                return await ctx.send("There's nothing available for use with the daily command right now.")
             changed_daily = {}
             for row in allowed_daily_currencies:
                 amount = random.randint(9_000, 13_000)
