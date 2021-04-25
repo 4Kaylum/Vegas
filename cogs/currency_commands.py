@@ -20,6 +20,7 @@ class CurrencyCommands(utils.Cog):
         """
         
         async with self.bot.database() as db:
+            await db.start_transaction()
             await db(
                 """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
                 ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
@@ -32,7 +33,8 @@ class CurrencyCommands(utils.Cog):
                 money_amount=user_money.money_amount+excluded.money_amount""",
                 ctx.author.id, ctx.guild.id, amount.currency, -amount.amount,
             )
-        
+            await db.commit_transaction()
+            
         await ctx.okay()
     
     @utils.command()
