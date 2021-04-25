@@ -18,7 +18,7 @@ class CurrencyCommands(utils.Cog):
         """
         Transfers money from the author's account to another user's account.
         """
-        
+
         async with self.bot.database() as db:
             await db.start_transaction()
             await db(
@@ -35,7 +35,7 @@ class CurrencyCommands(utils.Cog):
             )
             await db.commit_transaction()
         await ctx.okay()
-    
+
     @utils.command(aliases=['bal', 'balance'])
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     @commands.guild_only()
@@ -217,6 +217,7 @@ class CurrencyCommands(utils.Cog):
                 money_amount=user_money.money_amount+excluded.money_amount""",
                 user.id, ctx.guild.id, amount.currency, amount.amount,
             )
+        self.bot.dispatch("transaction", user, amount.currency, amount.amount, "MODERATOR_INTERVENTION")
         await ctx.okay()
 
     @currency.command(name="remove")
@@ -235,6 +236,7 @@ class CurrencyCommands(utils.Cog):
                 money_amount=user_money.money_amount+excluded.money_amount""",
                 user.id, ctx.guild.id, amount.currency, -amount.amount,
             )
+        self.bot.dispatch("transaction", user, amount.currency, -amount.amount, "MODERATOR_INTERVENTION")
         await ctx.okay()
 
 
