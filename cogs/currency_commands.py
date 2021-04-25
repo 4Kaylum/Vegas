@@ -12,11 +12,11 @@ class CurrencyCommands(utils.Cog):
     MAX_GUILD_CURRENCIES = 3
 
     @utils.command(aliases=["transfer", "give"])
-    @commands.bot_has_permissions(send_messages=True)
+    @commands.bot_has_permissions(send_messages=True, add_reactions=True)
     @commands.guild_only()
     async def pay(self, ctx: utils.Context, user: discord.Member, amount: localutils.BetAmount):
         """
-        Transfers money from the author's account to another user's account
+        Transfers money from the author's account to another user's account.
         """
         
         async with self.bot.database() as db:
@@ -34,10 +34,9 @@ class CurrencyCommands(utils.Cog):
                 ctx.author.id, ctx.guild.id, amount.currency, -amount.amount,
             )
             await db.commit_transaction()
-            
         await ctx.okay()
     
-    @utils.command()
+    @utils.command(aliases=['bal', 'balance'])
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     @commands.guild_only()
     async def coins(self, ctx: utils.Context, user: discord.Member = None):
