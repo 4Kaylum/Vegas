@@ -238,8 +238,12 @@ class CurrencyCommands(utils.Cog):
 
         async with self.bot.database() as db:
             allowed_daily_currencies = await db(
-                """SELECT currency_name FROM guild_currencies WHERE guild_id=$1 AND allow_daily_command=true""",
-                ctx.guild.id,
+                """SELECT guild_currencies.currency_name FROM guild_currencies LEFT JOIN user_money
+                ON guild_currencies.currency_name=user_money.currency_name WHERE
+                guild_currencies.guild_id=$1 AND user_money.guild_id=$1 AND
+                guild_currencies.allow_daily_command=true AND user_money.user_id=$2
+                user_money.last_daily_command<TIMEZONE('UTC', NOW()) - INTERVAL '1 day';""",
+                ctx.guild.id, ctx.author.id,
             )
             if not allowed_daily_currencies:
                 return await ctx.send(
@@ -253,7 +257,7 @@ class CurrencyCommands(utils.Cog):
                     FLOOR(RANDOM() * (13000 - 9000 + 1) + 9000)::INT)
                     ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
                     money_amount=user_money.money_amount+excluded.money_amount""",
-                    user.id, ctx.guild.id, row['currency_name'], amount,
+                    ctx.author.id, ctx.guild.id, row['currency_name'], amount,
                 )
                 changed_daily[row['currency_name']] = amount
 

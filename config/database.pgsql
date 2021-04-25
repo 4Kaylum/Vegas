@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS user_money(
     guild_id BIGINT,
     currency_name TEXT,
     money_amount BIGINT,
-    last_daily_command TIMESTAMP,
+    last_daily_command TIMESTAMP DEFAULT '2000-01-01',
     PRIMARY KEY (user_id, guild_id, currency_name),
     FOREIGN KEY (guild_id, currency_name) REFERENCES guild_currencies (guild_id, currency_name)
 );
