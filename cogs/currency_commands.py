@@ -1,5 +1,7 @@
 import asyncio
 import random
+import collections
+from datetime import datetime as dt
 
 import discord
 from discord.ext import commands
@@ -237,26 +239,40 @@ class CurrencyCommands(utils.Cog):
         """
 
         async with self.bot.database() as db:
-            allowed_daily_currencies = await db(
-                """SELECT guild_currencies.currency_name FROM guild_currencies LEFT JOIN user_money
-                ON guild_currencies.currency_name=user_money.currency_name WHERE
-                guild_currencies.guild_id=$1 AND user_money.guild_id=$1 AND
-                guild_currencies.allow_daily_command=true AND user_money.user_id=$2 AND
-                user_money.last_daily_command<TIMEZONE('UTC', NOW()) - INTERVAL '1 day';""",
-                ctx.guild.id, ctx.author.id,
+
+            # See which currencies allow faily command
+            all_guild_currencies = await db(
+                """SELECT currency_name FROM guild_currencies WHERE guild_id=$1 AND allow_daily_command=true""",
+                ctx.guild.id,
             )
-            if not allowed_daily_currencies:
-                return await ctx.send("There's nothing available for use with the daily command right now.")
-            changed_daily = {}
+
+            # Check out last run commands
+            allowed_daily_currencies = await db(
+                """SELECT currency_name, last_daily_command FROM user_money WHERE user_money.guild_id=$1 AND
+                user_money.user_id=$2 AND currency_name=ANY($3::TEXT)""",
+                ctx.guild.id, ctx.author.id, [i['currency_name'] for i in all_guild_currencies],
+            )
+
+            # Work out when each thing was last run
+            allowed_daily_dict = collections.defaultdict(lambda: dt(2000, 1, 1))
+            for row in all_guild_currencies:
+                allowed_daily_dict[row['currency_name']]
             for row in allowed_daily_currencies:
+                allowed_daily_dict[row['currency_name']] = row['last_daily_command']
+            if not allowed_daily_dict:
+                return await ctx.send("There's nothing available for use with the daily command right now.")
+
+            # Work out how much we're adding
+            changed_daily = {}
+            for currency_name in allowed_daily_dict.items():
                 amount = random.randint(9_000, 13_000)
                 await db(
                     """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount, last_daily_command)
                     VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
                     money_amount=user_money.money_amount+excluded.money_amount, last_daily_command=excluded.last_daily_command""",
-                    ctx.author.id, ctx.guild.id, row['currency_name'], amount, ctx.message.created_at,
+                    ctx.author.id, ctx.guild.id, currency_name, amount, ctx.message.created_at,
                 )
-                self.bot.dispatch("transaction", ctx.author, row['currency_name'], amount, "DAILY_COMMAND")
+                self.bot.dispatch("transaction", ctx.author, currency_name, amount, "DAILY_COMMAND")
                 changed_daily[row['currency_name']] = amount
 
         # Make them into an embed
