@@ -3,7 +3,7 @@ import random
 
 import voxelbotutils as utils
 
-from cogs import localutils as utils
+from cogs import utils as localutils
 
 
 class SlotsCommands(utils.Cog):
