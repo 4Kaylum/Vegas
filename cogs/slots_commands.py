@@ -41,7 +41,7 @@ class SlotsCommands(utils.Cog):
         ],
     ]
     r = random.Random(1.0)
-    for i in ITEMS:
+    for i in SLOT_ITEMS:
         r.shuffle(i)
 
     @utils.command()
