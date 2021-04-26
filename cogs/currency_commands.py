@@ -251,10 +251,10 @@ class CurrencyCommands(utils.Cog):
             for row in allowed_daily_currencies:
                 amount = random.randint(9_000, 13_000)
                 await db(
-                    """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
+                    """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4, $5)
                     ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
-                    money_amount=user_money.money_amount+excluded.money_amount""",
-                    ctx.author.id, ctx.guild.id, row['currency_name'], amount,
+                    money_amount=user_money.money_amount+excluded.money_amount, last_daily_command=excluded.last_daily_command""",
+                    ctx.author.id, ctx.guild.id, row['currency_name'], amount, ctx.message.created_at,
                 )
                 self.bot.dispatch("transaction", ctx.author, row['currency_name'], amount, "DAILY_COMMAND")
                 changed_daily[row['currency_name']] = amount
