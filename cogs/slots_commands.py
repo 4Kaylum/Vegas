@@ -50,7 +50,7 @@ class SlotsCommands(utils.Cog):
         Get the score of a line given three emojis.
         """
 
-        for check, multiplier in cls.SLOT_SCORES.values():
+        for check, multiplier in cls.SLOT_SCORES.items():
             check_counter = 0
             for emoji, count in check:
                 if line.coint(emoji) == count:
