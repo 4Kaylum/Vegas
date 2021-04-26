@@ -254,9 +254,9 @@ class CurrencyCommands(utils.Cog):
             )
 
             # Work out when each thing was last run
-            allowed_daily_dict = collections.defaultdict(lambda: dt(2000, 1, 1))
+            allowed_daily_dict = {}
             for row in all_guild_currencies:
-                allowed_daily_dict[row['currency_name']]
+                allowed_daily_dict[row['currency_name']] = dt(2000, 1, 1)
             for row in allowed_daily_currencies:
                 allowed_daily_dict[row['currency_name']] = row['last_daily_command']
             if not allowed_daily_dict:
@@ -265,7 +265,7 @@ class CurrencyCommands(utils.Cog):
             # Work out how much we're adding
             changed_daily = {}
             for currency_name, last_run_time in allowed_daily_dict.items():
-                if last_run_time < dt.utcnow() - timedelta(days=1):
+                if last_run_time > dt.utcnow() - timedelta(days=1):
                     continue
                 amount = random.randint(9_000, 13_000)
                 await db(
