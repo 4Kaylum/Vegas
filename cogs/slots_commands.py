@@ -112,7 +112,7 @@ class SlotsCommands(utils.Cog):
                 embed.add_field("Result", "You lost :c", inline=False)
             elif multiplier > 0:
                 embed.add_field("Result", "You won! :D", inline=False)
-        self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", multiplier != 0)
+        self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount if multiplier == 0 else bet.amount * multiplier, "SLOTS", multiplier != 0)
         return await ctx.send(embed=embed)
 
 
