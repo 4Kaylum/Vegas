@@ -55,7 +55,7 @@ class SlotsCommands(utils.Cog):
             for emoji, count in check:
                 if line.count(emoji) == count:
                     check_counter += 1
-            if len(check_counter) == check_counter:
+            if len(check) == check_counter:
                 return multiplier
         return 0
 
