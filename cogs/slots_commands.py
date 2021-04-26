@@ -68,6 +68,7 @@ class SlotsCommands(utils.Cog):
         """
 
         # See where our reels ended up
+        bet = bet or localutils.CurrencyAmount()
         slot_indexes = [
             random.randint(0, len(self.SLOT_ITEMS[0]) - 1),
             random.randint(0, len(self.SLOT_ITEMS[1]) - 1),
@@ -98,8 +99,21 @@ class SlotsCommands(utils.Cog):
         for line in transposed_lines:
             joined_lines.append("".join(line))
 
-        # Output
-        return await ctx.send("\n".join(joined_lines) + f"\n{self.get_slots_score(joined_lines[1])}")
+        # Work out what to output
+        multiplier = self.get_slots_score(joined_lines[1])
+        embed = utils.Embed(use_random_colour=True).add_field("Roll", "\n".join(joined_lines))
+        if bet.amount:
+            if multiplier == 0:
+                embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
+            if multiplier > 0:
+                embed.add_field("Result", f"You won! Added **{bet.amount * multiplier:,}** to your account! :D", inline=False)
+        else:
+            if multiplier == 0:
+                embed.add_field("Result", "You won! :D", inline=False)
+            if multiplier > 0:
+                embed.add_field("Result", "You lost :c", inline=False)
+        self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", multiplier != 0)
+        return await ctx.send(embed=embed)
 
 
 def setup(bot: utils.Bot):
