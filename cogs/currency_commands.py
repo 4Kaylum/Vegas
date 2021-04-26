@@ -282,7 +282,7 @@ class CurrencyCommands(utils.Cog):
         if not changed_daily:
             soonest_allow_daily = max(allowed_daily_dict.values())
             soonest_tv = utils.TimeValue((soonest_allow_daily - (dt.utcnow() - self.DAILY_COMMAND_TIMEOUT)).total_seconds())
-            return await ctx.send(f"There's nothing available for use with the daily command for another **{soonest_tv.clean_full}**.")
+            return await ctx.send(f"You can't get anything with the daily command for another **{soonest_tv.clean_full}**.")
         embed = utils.Embed(use_random_colour=True)
         description_list = []
         for currency, amount in changed_daily.items():
