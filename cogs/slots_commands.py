@@ -78,8 +78,8 @@ class SlotsCommands(utils.Cog):
         untransposed_lines = []
         for reel_index in range(0, 3):
             line = []
-            for _ in range(0, 3):
-                line.append(self.SLOT_ITEMS[reel_index][slot_indexes - 1])
+            for offset_index in range(-1, 2):
+                line.append(self.SLOT_ITEMS[reel_index][slot_indexes[reel_index] + offset_index])
             untransposed_lines.append(line)
 
         # Transpose the fruit
