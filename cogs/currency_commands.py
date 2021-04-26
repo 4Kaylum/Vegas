@@ -256,7 +256,7 @@ class CurrencyCommands(utils.Cog):
                     money_amount=user_money.money_amount+excluded.money_amount""",
                     ctx.author.id, ctx.guild.id, row['currency_name'], amount,
                 )
-                self.bot.dispatch("transaction", user, row['currency_name'], amount, "DAILY_COMMAND")
+                self.bot.dispatch("transaction", ctx.author, row['currency_name'], amount, "DAILY_COMMAND")
                 changed_daily[row['currency_name']] = amount
 
         # Make them into an embed
