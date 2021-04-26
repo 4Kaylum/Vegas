@@ -131,11 +131,20 @@ class BlackjackCommands(utils.Cog):
         embed = utils.Embed(colour=discord.Colour.red())
         embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values(max_value=21)[0]})", inline=True)
         embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=True)
-        if bet.amount:
-            embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
+        if max_dealer_value > user_max_value:
+            if bet.amount:
+                embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
+            else:
+                embed.add_field("Result", "You lost :c", inline=False)
         else:
-            embed.add_field("Result", "You lost :c", inline=False)
-        self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
+            if bet.amount:
+                embed.add_field("Result", f"You tied, returned **{bet.amount:,}** to your account :<", inline=False)
+            else:
+                embed.add_field("Result", "You tied :<", inline=False)
+        if max_dealer_value > user_max_value:
+            self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
+        else:
+            self.bot.dispatch("transaction", ctx.author, bet.currency, 0, "BLACKJACK", False)
         return await send_method(embed=embed)
 
 
