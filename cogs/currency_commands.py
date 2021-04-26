@@ -13,6 +13,7 @@ from cogs import utils as localutils
 class CurrencyCommands(utils.Cog):
 
     MAX_GUILD_CURRENCIES = 3
+    DAILY_COMMAND_TIMEOUT = timedelta(days=1)
 
     @utils.command(aliases=["transfer", "give"])
     @commands.bot_has_permissions(send_messages=True, add_reactions=True)
@@ -265,7 +266,7 @@ class CurrencyCommands(utils.Cog):
             # Work out how much we're adding
             changed_daily = {}
             for currency_name, last_run_time in allowed_daily_dict.items():
-                if last_run_time > dt.utcnow() - timedelta(days=1):
+                if last_run_time > dt.utcnow() - self.DAILY_COMMAND_TIMEOUT:
                     continue
                 amount = random.randint(9_000, 13_000)
                 await db(
@@ -280,7 +281,7 @@ class CurrencyCommands(utils.Cog):
         # Make them into an embed
         if not changed_daily:
             soonest_allow_daily = max(allowed_daily_dict.values())
-            soonest_tv = utils.TimeValue((dt.utcnow() - soonest_allow_daily).total_seconds())
+            soonest_tv = utils.TimeValue((soonest_allow_daily - (dt.utcnow() - self.DAILY_COMMAND_TIMEOUT)).total_seconds())
             return await ctx.send(f"There's nothing available for use with the daily command for another **{soonest_tv.clean_full}**.")
         embed = utils.Embed(use_random_colour=True)
         description_list = []
