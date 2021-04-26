@@ -53,7 +53,7 @@ class SlotsCommands(utils.Cog):
         for check, multiplier in cls.SLOT_SCORES.items():
             check_counter = 0
             for emoji, count in check:
-                if line.coint(emoji) == count:
+                if line.count(emoji) == count:
                     check_counter += 1
             if len(check_counter) == check_counter:
                 return multiplier
