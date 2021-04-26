@@ -249,7 +249,7 @@ class CurrencyCommands(utils.Cog):
             # Check out last run commands
             allowed_daily_currencies = await db(
                 """SELECT currency_name, last_daily_command FROM user_money WHERE user_money.guild_id=$1 AND
-                user_money.user_id=$2 AND currency_name=ANY($3::TEXT)""",
+                user_money.user_id=$2 AND currency_name=ANY($3::TEXT[])""",
                 ctx.guild.id, ctx.author.id, [i['currency_name'] for i in all_guild_currencies],
             )
 
