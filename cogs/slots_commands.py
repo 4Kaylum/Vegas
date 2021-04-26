@@ -105,13 +105,13 @@ class SlotsCommands(utils.Cog):
         if bet.amount:
             if multiplier == 0:
                 embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
-            if multiplier > 0:
+            elif multiplier > 0:
                 embed.add_field("Result", f"You won! Added **{bet.amount * multiplier:,}** to your account! :D", inline=False)
         else:
             if multiplier == 0:
-                embed.add_field("Result", "You won! :D", inline=False)
-            if multiplier > 0:
                 embed.add_field("Result", "You lost :c", inline=False)
+            elif multiplier > 0:
+                embed.add_field("Result", "You won! :D", inline=False)
         self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", multiplier != 0)
         return await ctx.send(embed=embed)
 
