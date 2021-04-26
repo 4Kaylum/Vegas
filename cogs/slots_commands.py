@@ -14,7 +14,7 @@ class SlotsCommands(utils.Cog):
         "ORANGE": "\U0001f7e0",  # Orange circle emoji
         "PLUM": "\U0001f7e3",  # Purple circle emoji
         "BELL": "\N{BELL}",
-        "BAR": "\N{CHOCOLATE}",
+        "BAR": "\N{CHOCOLATE BAR}",
     }  # Set up the emojis to use for the slots
 
     SLOT_SCORES = {
