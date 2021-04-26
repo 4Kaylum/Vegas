@@ -62,21 +62,26 @@ class SlotsCommands(utils.Cog):
         # See what our output for the reels is
         untransposed_lines = []
         for reel_index in range(0, 3):
-            line = ""
+            line = []
             for fruit_index in range(0, 3):
-                line += self.SLOT_ITEMS[reel_index][fruit_index - 1]
+                line.append(self.SLOT_ITEMS[reel_index][fruit_index - 1])
             untransposed_lines.append(line)
 
         # Transpose the fruit
         transposed_lines = []
         for reel_index in range(0, 3):
-            line = ""
+            line = []
             for fruit_index in range(0, 3):
-                line += untransposed_lines[fruit_index][reel_index]
+                line.append(untransposed_lines[fruit_index][reel_index])
             transposed_lines.append(line)
 
+        # Join together the lines
+        joined_lines = []
+        for line in transposed_lines:
+            joined_lines.append("".join(line))
+
         # Output
-        return await ctx.send("\n".join(transposed_lines))
+        return await ctx.send("\n".join(joined_lines))
 
 
 def setup(bot: utils.Bot):
