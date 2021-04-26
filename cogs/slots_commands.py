@@ -59,7 +59,7 @@ class SlotsCommands(utils.Cog):
                 return multiplier
         return 0
 
-    @utils.command(enabled=False)
+    @utils.command(aliases=['slot'])
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     @commands.guild_only()
     async def slots(self, ctx: utils.Context, *, bet: localutils.BetAmount = None):
