@@ -73,6 +73,7 @@ class SlotsCommands(utils.Cog):
             line = ""
             for fruit_index in range(0, 3):
                 line += untransposed_lines[fruit_index][reel_index]
+            transposed_lines.append(line)
 
         # Output
         return await ctx.send("\n".join(transposed_lines))
