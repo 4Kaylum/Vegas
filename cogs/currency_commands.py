@@ -1,7 +1,7 @@
 import asyncio
 import random
 import collections
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 
 import discord
 from discord.ext import commands
@@ -264,7 +264,9 @@ class CurrencyCommands(utils.Cog):
 
             # Work out how much we're adding
             changed_daily = {}
-            for currency_name in allowed_daily_dict.items():
+            for currency_name, last_run_time in allowed_daily_dict.items():
+                if last_run_time < dt.utcnow() - timedelta(days=1):
+                    continue
                 amount = random.randint(9_000, 13_000)
                 await db(
                     """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount, last_daily_command)
@@ -276,6 +278,8 @@ class CurrencyCommands(utils.Cog):
                 changed_daily[row['currency_name']] = amount
 
         # Make them into an embed
+        if not changed_daily:
+            return await ctx.send("There's nothing available for use with the daily command right now.")
         embed = utils.Embed(use_random_colour=True)
         description_list = []
         for currency, amount in changed_daily.items():
