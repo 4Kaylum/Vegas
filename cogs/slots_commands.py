@@ -9,12 +9,12 @@ from cogs import utils as localutils
 class SlotsCommands(utils.Cog):
 
     SLOT_EMOJIS = {
-        "LEMON": "LEMON",
-        "CHERRY": "CHERRY",
-        "ORANGE": "ORANGE",
-        "PLUM": "PLUM",
-        "BELL": "BELL",
-        "BAR": "BAR",
+        "LEMON": "\N{LEMON}",
+        "CHERRY": "\N{CHERRIES}",
+        "ORANGE": "\U0001f7e0",  # Orange circle emoji
+        "PLUM": "\U0001f7e3",  # Purple circle emoji
+        "BELL": "\N{BELL}",
+        "BAR": "\N{CHOCOLATE}",
     }  # Set up the emojis to use for the slots
 
     SLOT_SCORES = {
@@ -43,6 +43,21 @@ class SlotsCommands(utils.Cog):
     r = random.Random(1.0)
     for i in SLOT_ITEMS:
         r.shuffle(i)
+
+    @classmethod
+    def get_slots_score(cls, line) -> int:
+        """
+        Get the score of a line given three emojis.
+        """
+
+        for check, multiplier in self.SLOT_SCORES.values():
+            check_counter = 0
+            for emoji, count in check:
+                if line.coint(emoji) == count:
+                    check_counter += 1
+            if len(check_counter) == check_counter:
+                return multiplier
+        return 0
 
     @utils.command()
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
@@ -81,7 +96,7 @@ class SlotsCommands(utils.Cog):
             joined_lines.append("".join(line))
 
         # Output
-        return await ctx.send("\n".join(joined_lines))
+        return await ctx.send("\n".join(joined_lines) + f"\n{self.get_slots_score(joined_lines[1])}")
 
 
 def setup(bot: utils.Bot):
