@@ -7,7 +7,7 @@ import voxelbotutils as utils
 from cogs import utils as localutils
 
 
-class DiceCommands(utils.Cog):
+class DiceCommands(localutils.GamblingCog):
 
     async def roll_dice(self, ctx: utils.Context, dice_limit: int, multiplier: int, bet: localutils.BetAmount):
         """

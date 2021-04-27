@@ -6,7 +6,7 @@ import voxelbotutils as utils
 from cogs import utils as localutils
 
 
-class SlotsCommands(utils.Cog):
+class SlotsCommands(localutils.GamblingCog):
 
     SLOT_EMOJIS = {
         "LEMON": "\N{LEMON}",
@@ -28,16 +28,19 @@ class SlotsCommands(utils.Cog):
 
     SLOT_ITEMS = [
         [
-            *(SLOT_EMOJIS["LEMON"],) * 3, *(SLOT_EMOJIS["CHERRY"],) * 6, *(SLOT_EMOJIS["ORANGE"],) * 6,
-            *(SLOT_EMOJIS["PLUM"],) * 1, *(SLOT_EMOJIS["BELL"],) * 3, *(SLOT_EMOJIS["BAR"],) * 1,
+            *(SLOT_EMOJIS["LEMON"],) * 3, *(SLOT_EMOJIS["CHERRY"],) * 6,
+            *(SLOT_EMOJIS["ORANGE"],) * 6, *(SLOT_EMOJIS["PLUM"],) * 1,
+            *(SLOT_EMOJIS["BELL"],) * 3, *(SLOT_EMOJIS["BAR"],) * 1,
         ],
         [
-            *(SLOT_EMOJIS["LEMON"],) * 6, *(SLOT_EMOJIS["CHERRY"],) * 1, *(SLOT_EMOJIS["ORANGE"],) * 5,
-            *(SLOT_EMOJIS["PLUM"],) * 6, *(SLOT_EMOJIS["BELL"],) * 1, *(SLOT_EMOJIS["BAR"],) * 1,
+            *(SLOT_EMOJIS["LEMON"],) * 6, *(SLOT_EMOJIS["CHERRY"],) * 1,
+            *(SLOT_EMOJIS["ORANGE"],) * 5, *(SLOT_EMOJIS["PLUM"],) * 6,
+            *(SLOT_EMOJIS["BELL"],) * 1, *(SLOT_EMOJIS["BAR"],) * 1,
         ],
         [
-            *(SLOT_EMOJIS["LEMON"],) * 1, *(SLOT_EMOJIS["CHERRY"],) * 3, *(SLOT_EMOJIS["ORANGE"],) * 1,
-            *(SLOT_EMOJIS["PLUM"],) * 3, *(SLOT_EMOJIS["BELL"],) * 6, *(SLOT_EMOJIS["BAR"],) * 6,
+            *(SLOT_EMOJIS["LEMON"],) * 1, *(SLOT_EMOJIS["CHERRY"],) * 3,
+            *(SLOT_EMOJIS["ORANGE"],) * 1, *(SLOT_EMOJIS["PLUM"],) * 3,
+            *(SLOT_EMOJIS["BELL"],) * 6, *(SLOT_EMOJIS["BAR"],) * 6,
         ],
     ]
     r = random.Random(1.0)
@@ -81,7 +84,9 @@ class SlotsCommands(utils.Cog):
             line = []
             for offset_index in range(-1, 2):
                 try:
-                    line.append(self.SLOT_ITEMS[reel_index][slot_indexes[reel_index] + offset_index])
+                    line.append(
+                        self.SLOT_ITEMS[reel_index][slot_indexes[reel_index] + offset_index]
+                    )
                 except IndexError:
                     line.append(self.SLOT_ITEMS[reel_index][-1])
             untransposed_lines.append(line)
