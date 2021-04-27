@@ -7,7 +7,7 @@ import voxelbotutils as utils
 from cogs import utils as localutils
 
 
-class BlackjackCommands(utils.Cog):
+class BlackjackCommands(localutils.GamblingCog):
 
     @utils.command(aliases=['bj'])
     @commands.bot_has_permissions(send_messages=True, embed_links=True, external_emojis=True, add_reactions=True)
