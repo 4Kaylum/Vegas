@@ -71,9 +71,9 @@ class Card(object):
         None: "<:card_back:834578062514585652>",
     }
     CARD_BACK = EMOJI_CARDS[None]
-    __slots__ = ("_value", "suit",)
+    __slots__ = ("_value", "suit", "_value_override")
 
-    def __init__(self, value: int, suit: str):
+    def __init__(self, value: int, suit: str, *, value_override: typing.List[int] = None):
         """
         Args:
             value (int): The value that the card has.
@@ -81,11 +81,14 @@ class Card(object):
         """
 
         self._value = value
+        self._value_override = value_override
         self.suit: str = suit.upper()
         if self.suit not in self.VALID_SUITS:
             raise ValueError("Given value %s for suit was not valid - %s", self.suit, self.VALID_SUITS)
 
     def get_values(self) -> typing.List[int]:
+        if self._value_override:
+            return self._value_override
         if self._value == 1:
             return [1, 11,]
         elif self._value == 11:
@@ -118,27 +121,42 @@ class Card(object):
 
     def __ge__(self, other):
         if not isinstance(other, self.__class__):
-            raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
+            raise TypeError(
+                "Can't compare types: %s and %s",
+                self.__class__.name, other.__class__.__name__,
+            )
         return max(self.get_values()) >= max(other.get_values())
 
     def __gt__(self, other):
         if not isinstance(other, self.__class__):
-            raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
+            raise TypeError(
+                "Can't compare types: %s and %s",
+                self.__class__.name, other.__class__.__name__,
+            )
         return max(self.get_values()) > max(other.get_values())
 
     def __le__(self, other):
         if not isinstance(other, self.__class__):
-            raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
+            raise TypeError(
+                "Can't compare types: %s and %s",
+                self.__class__.name, other.__class__.__name__,
+            )
         return max(self.get_values()) <= max(other.get_values())
 
     def __lt__(self, other):
         if not isinstance(other, self.__class__):
-            raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
+            raise TypeError(
+                "Can't compare types: %s and %s",
+                self.__class__.name, other.__class__.__name__,
+            )
         return max(self.get_values()) < max(other.get_values())
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
-            raise TypeError("Can't compare types: %s and %s", self.__class__.name, other.__class__.__name__)
+            raise TypeError(
+                "Can't compare types: %s and %s",
+                self.__class__.name, other.__class__.__name__,
+            )
         return max(self.get_values()) == max(other.get_values())
 
     def __hash__(self):
