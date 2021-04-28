@@ -37,7 +37,7 @@ class BaccuratCommands(localutils.GamblingCog):
     @utils.command()
     @commands.bot_has_permissions(send_messages=True, embed_links=True)
     @commands.guild_only()
-    async def baccurat(self, ctx: utils.Context, bet_location: str, *, bet: localutils.BetAmount = None):
+    async def baccurat(self, ctx: utils.Context, bet_location: str = None, *, bet: localutils.BetAmount = None):
         """
         Plays you a game of baccurat.
         """
@@ -50,7 +50,7 @@ class BaccuratCommands(localutils.GamblingCog):
         """
 
         # Make sure they set a valid bet location
-        bet_location = bet_location.lower()[0]
+        bet_location = (bet_location or "-").lower()[0]
         if bet_location not in ["player", "dealer", "tie", "p", "d", "t"]:
             return await ctx.send('Your bet location needs to be one of "player", "dealer", and "tie".')
 
