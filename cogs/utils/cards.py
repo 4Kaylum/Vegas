@@ -71,7 +71,7 @@ class Card(object):
         None: "<:card_back:834578062514585652>",
     }
     CARD_BACK = EMOJI_CARDS[None]
-    __slots__ = ("_value", "suit",)
+    __slots__ = ("_value", "suit", "_value_override")
 
     def __init__(self, value: int, suit: str, *, value_override: typing.List[int] = None):
         """
