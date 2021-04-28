@@ -135,3 +135,8 @@ class BaccuratCommands(localutils.GamblingCog):
                 else:
                     embed.add_field("Result", "You won :c", inline=False)
                 return await ctx.reply(embed=embed)
+
+
+def setup(bot: utils.Bot):
+    x = BaccuratCommands(bot)
+    bot.add_cog(x)
