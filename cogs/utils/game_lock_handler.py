@@ -20,4 +20,4 @@ class GameLockHandler(object):
     async def unlock(cls, _, ctx):
         current_lock, bet_message = cls.locks[(ctx.guild.id, ctx.author.id,)]
         current_lock.release()
-
+        cls.locks[(ctx.guild.id, ctx.author.id,)] = (current_lock, None,)
