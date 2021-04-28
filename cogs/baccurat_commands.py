@@ -76,8 +76,8 @@ class BaccuratCommands(localutils.GamblingCog):
 
         # Make the initial embed
         embed = utils.Embed()
-        embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]})", inline=True)
-        embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()[0]})", inline=True)
+        embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()})", inline=True)
+        embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()})", inline=True)
 
         # See if they tied
         if dealer_hand.get_values() == user_hand.get_values():
