@@ -4,6 +4,8 @@ import voxelbotutils as utils
 
 class CurrencyAmount(object):
 
+    SLASH_COMMAND_ARG_TYPE = utils.interactions.ApplicationCommandOptionType.STRING
+
     def __init__(self, amount: int = 0, currency: str = None):
         self.amount = amount
         self.currency = currency
