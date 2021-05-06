@@ -51,7 +51,7 @@ class BlackjackCommands(localutils.GamblingCog):
             embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str, max_value=21))})", inline=True)
             embed.set_footer(f"{valid_emojis[0]} Hit | {valid_emojis[1]} Stand")
             if message is None:
-                message = await ctx.reply(embed=embed)
+                message = await ctx.send(embed=embed)
                 for e in valid_emojis:
                     await message.add_reaction(e)
             else:
@@ -75,7 +75,7 @@ class BlackjackCommands(localutils.GamblingCog):
             if not done:
                 for i in pending:
                     i.cancel()
-                return await ctx.reply("Timed out waiting for your response.", ignore_error=True)
+                return await ctx.send("Timed out waiting for your response.", ignore_error=True)
 
             # See if they want to stand
             done = done.pop().result()
