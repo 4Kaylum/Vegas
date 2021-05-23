@@ -75,7 +75,7 @@ class BlackjackCommands(localutils.GamblingCog):
             if not done:
                 for i in pending:
                     i.cancel()
-                return await ctx.send("Timed out waiting for your response.", ignore_error=True)
+                return await ctx.send("Timed out waiting for your response.")
 
             # See if they want to stand
             done = done.pop().result()

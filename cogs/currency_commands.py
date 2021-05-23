@@ -126,7 +126,7 @@ class CurrencyCommands(utils.Cog):
                 currency_name_message = await self.bot.wait_for("message", check=check, timeout=60)
                 assert currency_name_message.content
             except asyncio.TimeoutError:
-                return await ctx.send("Timed out on adding a new currency to the guild.", ignore_error=True)
+                return await ctx.send("Timed out on adding a new currency to the guild.")
             except AssertionError:
                 await currency_name_message.reply("This isn't a valid currency name - please provide another one.")
                 continue
@@ -155,7 +155,7 @@ class CurrencyCommands(utils.Cog):
                 assert currency_short_message.content
                 break
             except asyncio.TimeoutError:
-                return await ctx.send("Timed out on adding a new currency to the guild.", ignore_error=True)
+                return await ctx.send("Timed out on adding a new currency to the guild.")
             except AssertionError:
                 await currency_short_message.reply("This isn't a valid currency name - please provide another one.")
 
@@ -182,7 +182,7 @@ class CurrencyCommands(utils.Cog):
         try:
             currency_daily_payload = await self.bot.wait_for("raw_reaction_add", check=reaction_check(m), timeout=60)
         except asyncio.TimeoutError:
-            return await ctx.send("Timed out on adding a new currency to the guild.", ignore_error=True)
+            return await ctx.send("Timed out on adding a new currency to the guild.")
 
         # Add the new currency to the server
         async with ctx.typing():
