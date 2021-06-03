@@ -23,8 +23,13 @@ class BlackjackCommands(localutils.GamblingCog):
         dealer_hand.draw(2)
         user_hand: localutils.Hand = localutils.Hand(deck)
         user_hand.draw(2)
-        valid_emojis = ["\N{HEAVY PLUS SIGN}", "\N{HEAVY CHECK MARK}"]
         bet = bet or localutils.CurrencyAmount()
+        components = utils.MessageComponents(
+            utils.ActionRow(
+                utils.Button("HIT", "HIT"),
+                utils.Button("STAND", "STAND"),
+            ),
+        )
 
         # Ask the user if they want to hit or stand
         message = None
@@ -49,38 +54,26 @@ class BlackjackCommands(localutils.GamblingCog):
             embed = utils.Embed(colour=0xfffffe)
             embed.add_field("Dealer Hand", f"{dealer_hand.display(show_cards=1)} (??)", inline=True)
             embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str, max_value=21))})", inline=True)
-            embed.set_footer(f"{valid_emojis[0]} Hit | {valid_emojis[1]} Stand")
             if message is None:
-                message = await ctx.send(embed=embed)
-                for e in valid_emojis:
-                    await message.add_reaction(e)
+                message = await ctx.send(embed=embed, components=components)
             else:
                 await message.edit(embed=embed)
 
             # See what the user wants to do
             def check(payload):
                 return all([
-                    payload.user_id == ctx.author.id,
-                    payload.message_id == message.id,
-                    str(payload.emoji) in valid_emojis,
+                    payload.message.id == message.id,
+                    payload.user.id == ctx.author.id,
                 ])
-            done, pending = await asyncio.wait(
-                [
-                    self.bot.wait_for("raw_reaction_add", check=check),
-                    self.bot.wait_for("raw_reaction_remove", check=check),
-                ],
-                timeout=120,
-                return_when=asyncio.FIRST_COMPLETED,
-            )
-            if not done:
-                for i in pending:
-                    i.cancel()
+            try:
+                payload = await self.bot.wait_for("component_interaction", check=check, timeout=120)
+                await payload.ack()
+            except asyncio.TimeoutError:
                 return await ctx.send("Timed out waiting for your response.")
 
             # See if they want to stand
-            done = done.pop().result()
-            changed_emoji = str(done.emoji)
-            if changed_emoji == valid_emojis[1]:
+            clicked = payload.component
+            if clicked.custom_id == "STAND":
                 break
 
             # See if they want to hit
@@ -108,9 +101,10 @@ class BlackjackCommands(localutils.GamblingCog):
         # Don't error if the user got a blackjack
         if message:
             send_method = message.edit
-            self.bot.loop.create_task(message.clear_reactions())
+            components = components.disable_components()
         else:
             send_method = ctx.send
+            components = None
 
         # Output something for the user winning
         if user_has_won:
@@ -125,7 +119,7 @@ class BlackjackCommands(localutils.GamblingCog):
             else:
                 embed.add_field("Result", "You won! :D", inline=False)
             self.bot.dispatch("transaction", ctx.author, bet.currency, bet.amount, "BLACKJACK", True)
-            return await send_method(embed=embed)
+            return await send_method(embed=embed, components=components)
 
         # Output something for the dealer winning
         embed = utils.Embed(colour=discord.Colour.red())
@@ -145,7 +139,7 @@ class BlackjackCommands(localutils.GamblingCog):
             self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
         else:
             self.bot.dispatch("transaction", ctx.author, bet.currency, 0, "BLACKJACK", False)
-        return await send_method(embed=embed)
+        return await send_method(embed=embed, components=components)
 
 
 def setup(bot: utils.Bot):
