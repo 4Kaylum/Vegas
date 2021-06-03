@@ -45,8 +45,7 @@ class BlackjackCommands(localutils.GamblingCog):
                 else:
                     embed.add_field("Result", "You lost :c", inline=False)
                 self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
-                self.bot.loop.create_task(message.clear_reactions())
-                return await message.edit(embed=embed)
+                return await message.edit(embed=embed, components=components.disable_components())
             if max(user_hand.get_values(max_value=21)) == 21:
                 break
 
