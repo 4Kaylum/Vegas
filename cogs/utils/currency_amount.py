@@ -59,6 +59,27 @@ class CurrencyAmount(object):
 
 class BetAmount(CurrencyAmount):
 
+    async def validate(self, ctx: commands.Context):
+        """
+        See if the user running the command has the right amount of money.
+        """
+
+        # If we don't care for the amount
+        if self.amount <= 0:
+            self.amount = 0
+            return True
+
+        # Make sure they have the right amount of money
+        async with vbu.Database() as db:
+            rows = await db.call(
+                """SELECT SUM(amount_transferred) FROM transactions
+                WHERE guild_id=$1 AND user_id=$2 AND currency_name=$3""",
+                ctx.guild.id, user.id, self.currency,
+            )
+        if not rows or rows[0]['sum'] < self.amount:
+            raise commands.BadArgument("You don't have enough money to make that bet.")
+        return True
+
     @classmethod
     async def convert(cls, ctx, value):
         """

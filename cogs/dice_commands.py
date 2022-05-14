@@ -96,7 +96,9 @@ class DiceCommands(utils.GamblingCog):
         Place a bet on a dice roll - any number rolled that's higher than 55 will multiply your bet x2.
         """
 
-        await self.roll_dice(ctx, 55, 2, utils.BetAmount(bet, currency))
+        ba = utils.BetAmount(bet, currency)
+        await ba.validate(ctx)
+        await self.roll_dice(ctx, 55, 2, ba)
 
     @dice.command(
         name="75x3",
@@ -126,7 +128,9 @@ class DiceCommands(utils.GamblingCog):
         Place a bet on a dice roll - any number rolled that's higher than 75 will multiply your bet x3.
         """
 
-        await self.roll_dice(ctx, 75, 3, utils.BetAmount(bet, currency))
+        ba = utils.BetAmount(bet, currency)
+        await ba.validate(ctx)
+        await self.roll_dice(ctx, 75, 3, ba)
 
     @dice.command(
         name="95x5",
@@ -156,7 +160,9 @@ class DiceCommands(utils.GamblingCog):
         Place a bet on a dice roll - any number rolled that's higher than 95 will multiply your bet x5.
         """
 
-        await self.roll_dice(ctx, 95, 5, utils.BetAmount(bet, currency))
+        ba = utils.BetAmount(bet, currency)
+        await ba.validate(ctx)
+        await self.roll_dice(ctx, 95, 5, ba)
 
 
 def setup(bot: vbu.Bot):

@@ -6,8 +6,6 @@ from typing import Optional
 import discord
 from discord.ext import commands, vbu
 
-from cogs import utils
-
 
 class CurrencyCommands(vbu.Cog):
 
