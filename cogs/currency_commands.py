@@ -93,7 +93,7 @@ class CurrencyCommands(vbu.Cog):
             currency_name = name.title() if name.lower() == name else name
             embed.add_field(
                 name=currency_name,
-                value=format(row['sum'] or 0, ","),
+                value=format(int(row['sum'] or 0), ","),
             )
 
         # Default case
