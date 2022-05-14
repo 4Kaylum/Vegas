@@ -1,5 +1,4 @@
 import asyncio
-from typing import Optional
 
 import discord
 from discord.ext import commands, vbu
@@ -9,13 +8,37 @@ from cogs import utils
 
 class BlackjackCommands(utils.GamblingCog):
 
-    @commands.command(aliases=['bj'])
-    @commands.bot_has_permissions(send_messages=True, embed_links=True, external_emojis=True, add_reactions=True)
-    @commands.guild_only()
-    async def blackjack(self, ctx: vbu.Context, *, bet: Optional[utils.BetAmount] = None):
+    @commands.command(
+        aliases=['bj'],
+        application_command_meta=commands.ApplicationCommandMeta(
+            options=[
+                discord.ApplicationCommandOption(
+                    name="bet",
+                    type=discord.ApplicationCommandOptionType.integer,
+                    description="The amount that you want to bet.",
+                    min_value=0,
+                ),
+                discord.ApplicationCommandOption(
+                    name="currency",
+                    type=discord.ApplicationCommandOptionType.string,
+                    description="The currency that you want to bet in.",
+                ),
+            ],
+            guild_only=True,
+        ),
+    )
+    @commands.defer()
+    async def blackjack(
+            self,
+            ctx: vbu.SlashContext,
+            bet: int,
+            currency: str):
         """
         Lets you play a blackjack game against the bot.
         """
+
+        # Fix the bet amount into an object
+        ba = utils.BetAmount(bet, currency)
 
         # Create the deck and hands used for the game
         deck: utils.Deck = utils.Deck.create_deck(shuffle=True)
@@ -23,8 +46,8 @@ class BlackjackCommands(utils.GamblingCog):
         dealer_hand.draw(2)
         user_hand: utils.Hand = utils.Hand(deck)
         user_hand.draw(2)
-        bet = bet or utils.CurrencyAmount()
-        assert bet
+
+        # Make some components
         components = discord.ui.MessageComponents(
             discord.ui.ActionRow(
                 discord.ui.Button(label="HIT", custom_id="HIT"),
@@ -41,11 +64,11 @@ class BlackjackCommands(utils.GamblingCog):
                 embed = vbu.Embed(colour=discord.Colour.red())
                 embed.add_field("Dealer Hand", f"{dealer_hand.display(show_cards=1)} (??)", inline=True)
                 embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()[-1]} - bust)", inline=True)
-                if bet.amount:
-                    embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
+                if ba.amount:
+                    embed.add_field("Result", f"You lost, removed **{ba.amount:,}** from your account :c", inline=False)
                 else:
                     embed.add_field("Result", "You lost :c", inline=False)
-                self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
+                self.bot.dispatch("transaction", ctx.author, ba.currency, -ba.amount, "BLACKJACK", False)
                 assert message
                 return await message.edit(embed=embed, components=components.disable_components())
             if max(user_hand.get_values(max_value=21)) == 21:
@@ -115,11 +138,11 @@ class BlackjackCommands(utils.GamblingCog):
             else:
                 embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[0]})", inline=True)
             embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=True)
-            if bet.amount:
-                embed.add_field("Result", f"You won! Added **{bet.amount:,}** to your account! :D", inline=False)
+            if ba.amount:
+                embed.add_field("Result", f"You won! Added **{ba.amount:,}** to your account! :D", inline=False)
             else:
                 embed.add_field("Result", "You won! :D", inline=False)
-            self.bot.dispatch("transaction", ctx.author, bet.currency, bet.amount, "BLACKJACK", True)
+            self.bot.dispatch("transaction", ctx.author, ba.currency, ba.amount, "BLACKJACK", True)
             return await send_method(embed=embed, components=components)  # type: ignore
 
         # Output something for the dealer winning
@@ -127,19 +150,19 @@ class BlackjackCommands(utils.GamblingCog):
         embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values(max_value=21)[0]})", inline=True)
         embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=True)
         if max_dealer_value > user_max_value:
-            if bet.amount:
-                embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
+            if ba.amount:
+                embed.add_field("Result", f"You lost, removed **{ba.amount:,}** from your account :c", inline=False)
             else:
                 embed.add_field("Result", "You lost :c", inline=False)
         else:
-            if bet.amount:
-                embed.add_field("Result", f"You tied, returned **{bet.amount:,}** to your account :<", inline=False)
+            if ba.amount:
+                embed.add_field("Result", f"You tied, returned **{ba.amount:,}** to your account :<", inline=False)
             else:
                 embed.add_field("Result", "You tied :<", inline=False)
         if max_dealer_value > user_max_value:
-            self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
+            self.bot.dispatch("transaction", ctx.author, ba.currency, -ba.amount, "BLACKJACK", False)
         else:
-            self.bot.dispatch("transaction", ctx.author, bet.currency, 0, "BLACKJACK", False)
+            self.bot.dispatch("transaction", ctx.author, ba.currency, 0, "BLACKJACK", False)
         return await send_method(embed=embed, components=components)  # type: ignore
 
 
