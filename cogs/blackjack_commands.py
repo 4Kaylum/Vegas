@@ -68,7 +68,7 @@ class BlackjackCommands(utils.GamblingCog):
                     embed.add_field("Result", f"You lost, removed **{ba.amount:,}** from your account :c", inline=False)
                 else:
                     embed.add_field("Result", "You lost :c", inline=False)
-                self.bot.dispatch("transaction", ctx.author, ba.currency, -ba.amount, "BLACKJACK", False)
+                self.bot.dispatch("transaction", ctx.author, ba.currency, -ba.amount, "GAME blackjack", False)
                 assert message
                 return await message.edit(embed=embed, components=components.disable_components())
             if max(user_hand.get_values(max_value=21)) == 21:
@@ -142,7 +142,7 @@ class BlackjackCommands(utils.GamblingCog):
                 embed.add_field("Result", f"You won! Added **{ba.amount:,}** to your account! :D", inline=False)
             else:
                 embed.add_field("Result", "You won! :D", inline=False)
-            self.bot.dispatch("transaction", ctx.author, ba.currency, ba.amount, "BLACKJACK", True)
+            self.bot.dispatch("transaction", ctx.author, ba.currency, ba.amount, "GAME blackjack", True)
             return await send_method(embed=embed, components=components)  # type: ignore
 
         # Output something for the dealer winning
@@ -160,9 +160,9 @@ class BlackjackCommands(utils.GamblingCog):
             else:
                 embed.add_field("Result", "You tied :<", inline=False)
         if max_dealer_value > user_max_value:
-            self.bot.dispatch("transaction", ctx.author, ba.currency, -ba.amount, "BLACKJACK", False)
+            self.bot.dispatch("transaction", ctx.author, ba.currency, -ba.amount, "GAME blackjack", False)
         else:
-            self.bot.dispatch("transaction", ctx.author, ba.currency, 0, "BLACKJACK", False)
+            self.bot.dispatch("transaction", ctx.author, ba.currency, 0, "GAME blackjack", False)
         return await send_method(embed=embed, components=components)  # type: ignore
 
 
