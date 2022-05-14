@@ -56,5 +56,6 @@ CREATE TABLE IF NOT EXISTS transactions(
     currency_name TEXT,
     amount_transferred BIGINT,
     reason TEXT NOT NULL,
-    win BOOLEAN
+    win BOOLEAN,
+    timestamp TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'UTC')
 );

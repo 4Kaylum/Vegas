@@ -1,7 +1,7 @@
 import asyncio
 import random
 from datetime import datetime as dt, timedelta
-from typing import Optional
+from typing import List, Optional
 
 import discord
 from discord.ext import commands, vbu
@@ -214,63 +214,59 @@ class CurrencyCommands(vbu.Cog[vbu.Bot]):
             )
         return await ctx.interaction.followup.send("Your currency has been created!")
 
-    # @commands.command()
-    # async def daily(self, ctx: vbu.Context):
-    #     """
-    #     Get money on the daily.
-    #     """
+    @commands.command(
+        application_command_meta=commands.ApplicationCommandMeta()
+    )
+    @commands.defer()
+    async def daily(self, ctx: vbu.SlashContext):
+        """
+        Get money on the daily.
+        """
 
-    #     async with vbu.Database() as db:
+        # Open db connection
+        async with vbu.Database() as db:
 
-    #         # See which currencies allow faily command
-    #         all_guild_currencies = await db(
-    #             """SELECT currency_name FROM guild_currencies WHERE guild_id=$1 AND allow_daily_command=true""",
-    #             ctx.guild.id,
-    #         )
+            # See what currencies we can daily
+            all_valid_currencies = await db.call(
+                """SELECT currency_name FROM guild_currencies WHERE guild_id=$1 AND allow_daily_command=true""",
+                ctx.guild.id,
+            )
 
-    #         # Check out last run commands
-    #         allowed_daily_currencies = await db(
-    #             """SELECT currency_name, last_daily_command FROM user_money WHERE user_money.guild_id=$1 AND
-    #             user_money.user_id=$2 AND currency_name=ANY($3::TEXT[])""",
-    #             ctx.guild.id, ctx.author.id, [i['currency_name'] for i in all_guild_currencies],
-    #         )
+            # See what currencies they called in the last day
+            disallowed_currencies = await db.call(
+                """SELECT currency_name FROM transactions WHERE guild_id=$1 AND
+                user_id=$2 AND currency_name=ANY($3::TEXT[]) AND timestamp >
+                (TIMEZONE('UTC', NOW()) - INTERVAL '1 day') AND reason='DAILY_COMMAND'""",
+                ctx.guild.id, ctx.author.id, [i['currency_name'] for i in all_valid_currencies],
+            )
 
-    #         # Work out when each thing was last run
-    #         allowed_daily_dict = {}
-    #         for row in all_guild_currencies:
-    #             allowed_daily_dict[row['currency_name']] = dt(2000, 1, 1)
-    #         for row in allowed_daily_currencies:
-    #             allowed_daily_dict[row['currency_name']] = row['last_daily_command']
-    #         if not allowed_daily_dict:
-    #             return await ctx.send("There's nothing available for use with the daily command right now.")
+        # Work out how much we're adding
+        changed_daily_items = {}
+        disallowed: List[str] = [r['currency_name'] for r in disallowed_currencies]
+        for row in all_valid_currencies:
+            if row['currency_name'] in disallowed:
+                continue
+            changed_daily_items[row['currency_name']] = random.randint(9_000, 13_000)
 
-    #         # Work out how much we're adding
-    #         changed_daily = {}
-    #         for currency_name, last_run_time in allowed_daily_dict.items():
-    #             if last_run_time > dt.utcnow() - self.DAILY_COMMAND_TIMEOUT:
-    #                 continue
-    #             amount = random.randint(9_000, 13_000)
-    #             await db(
-    #                 """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount, last_daily_command)
-    #                 VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
-    #                 money_amount=user_money.money_amount+excluded.money_amount, last_daily_command=excluded.last_daily_command""",
-    #                 ctx.author.id, ctx.guild.id, currency_name, amount, ctx.message.created_at,
-    #             )
-    #             self.bot.dispatch("transaction", ctx.author, currency_name, amount, "DAILY_COMMAND")
-    #             changed_daily[row['currency_name']] = amount
+        # Add it to them
+        for currency_name, amount in changed_daily_items.items():
+            self.bot.dispatch("transaction", ctx.author, currency_name, amount, "DAILY_COMMAND")
 
-    #     # Make them into an embed
-    #     if not changed_daily:
-    #         soonest_allow_daily = max(allowed_daily_dict.values())
-    #         soonest_tv = vbu.TimeValue((soonest_allow_daily - (dt.utcnow() - self.DAILY_COMMAND_TIMEOUT)).total_seconds())
-    #         return await ctx.send(f"You can't get anything with the daily command for another **{soonest_tv.clean_full}**.")
-    #     embed = vbu.Embed(use_random_colour=True)
-    #     description_list = []
-    #     for currency, amount in changed_daily.items():
-    #         currency_name = currency.title() if currency.lower() == currency else currency
-    #         description_list.append(f"**{currency_name}** - {amount}")
-    #     embed.description = "\n".join(description_list)
-    #     return await ctx.send(embed=embed)
+        # If they can't run the command say when they next can
+        if not changed_daily_items:
+            last_run_daily = min([i['timestamp'] for i in disallowed_currencies])
+            next_run_daily = last_run_daily + self.DAILY_COMMAND_TIMEOUT
+            formatted = discord.utils.format_dt(next_run_daily, style='R')
+            return await ctx.interaction.followup.send(f"You can't get anything with the daily command for another **{formatted}**.")
+
+        # They ran the command
+        embed = vbu.Embed(use_random_colour=True)
+        description_list = []
+        for currency, amount in changed_daily_items.items():
+            currency_name = currency.title() if currency.lower() == currency else currency
+            description_list.append(f"**{currency_name}** - {amount}")
+        embed.description = "\n".join(description_list)
+        return await ctx.interaction.followup.send(embed=embed)
 
 
 def setup(bot: vbu.Bot):

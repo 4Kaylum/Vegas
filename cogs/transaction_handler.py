@@ -35,9 +35,10 @@ class TransactionHandler(vbu.Cog[vbu.Bot]):
         if amount and currency:
             async with vbu.Database() as db:
                 await db(
-                    """INSERT INTO transactions (user_id, guild_id, currency_name, amount_transferred, reason, win)
+                    """INSERT INTO transactions (user_id, guild_id, currency_name,
+                    amount_transferred, reason, win)
                     VALUES ($1, $2, $3, $4, $5, $6)""",
-                    member.id, member.guild.id, currency, amount or None, reason, win,
+                    member.id, member.guild.id, currency, amount, reason, win,
                 )
 
 
