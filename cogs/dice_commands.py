@@ -12,6 +12,7 @@ class DiceCommands(utils.GamblingCog):
     async def roll_dice(
             self,
             ctx: vbu.SlashContext,
+            reason: str,
             dice_limit: int,
             multiplier: int,
             bet: utils.BetAmount) -> None:
@@ -55,7 +56,7 @@ class DiceCommands(utils.GamblingCog):
             ctx.author,
             bet.currency,
             win_amount,
-            ctx.command.name.upper(),  # type: ignore
+            f"GAME {reason}",  # type: ignore
             user_won,
         )
         await ctx.send(embed=embed)
@@ -99,7 +100,7 @@ class DiceCommands(utils.GamblingCog):
 
         ba = utils.BetAmount(bet, currency)
         await ba.validate(ctx)
-        await self.roll_dice(ctx, 55, 2, ba)
+        await self.roll_dice(ctx, "55x2", 55, 2, ba)
 
     @dice.command(
         name="75x3",
@@ -132,7 +133,7 @@ class DiceCommands(utils.GamblingCog):
 
         ba = utils.BetAmount(bet, currency)
         await ba.validate(ctx)
-        await self.roll_dice(ctx, 75, 3, ba)
+        await self.roll_dice(ctx, "75x3", 75, 3, ba)
 
     @dice.command(
         name="95x5",
@@ -165,7 +166,7 @@ class DiceCommands(utils.GamblingCog):
 
         ba = utils.BetAmount(bet, currency)
         await ba.validate(ctx)
-        await self.roll_dice(ctx, 95, 5, ba)
+        await self.roll_dice(ctx, "95x5", 95, 5, ba)
 
 
 def setup(bot: vbu.Bot):
