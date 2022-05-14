@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS guild_currencies(
     guild_id BIGINT,
     currency_name TEXT,
     short_form TEXT,
-    negative_amount_allowed INTEGER DEFAULT 0,
+    negative_amount_allowed BOOLEAN DEFAULT FALSE,
     allow_daily_command BOOLEAN NOT NULL DEFAULT FALSE,
     UNIQUE (guild_id, short_form),
     PRIMARY KEY (guild_id, currency_name)
