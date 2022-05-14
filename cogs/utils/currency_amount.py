@@ -74,7 +74,7 @@ class BetAmount(CurrencyAmount):
             rows = await db.call(
                 """SELECT SUM(amount_transferred) FROM transactions
                 WHERE guild_id=$1 AND user_id=$2 AND currency_name=$3""",
-                ctx.guild.id, user.id, self.currency,
+                ctx.guild.id, ctx.author.id, self.currency,
             )
         if not rows or rows[0]['sum'] < self.amount:
             raise commands.BadArgument("You don't have enough money to make that bet.")
