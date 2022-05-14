@@ -9,7 +9,7 @@ class CurrencyAmount(object):
     SLASH_COMMAND_ARG_TYPE = discord.ApplicationCommandOptionType.string
 
     def __init__(self, amount: int = 0, currency: str = "coins"):
-        self.amount = amount
+        self.amount = amount or 0
         self.currency = currency
 
     @classmethod
