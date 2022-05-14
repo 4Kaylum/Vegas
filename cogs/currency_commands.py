@@ -6,52 +6,77 @@ from typing import Optional
 import discord
 from discord.ext import commands, vbu
 
+from cogs import utils
+
 
 class CurrencyCommands(vbu.Cog):
 
     MAX_GUILD_CURRENCIES = 3
     DAILY_COMMAND_TIMEOUT = timedelta(days=1)
 
-    # @commands.command(
-    #     aliases=["pay", "give"],
-    #     application_command_meta=commands.ApplicationCommandMeta(
-    #         options=[
-    #             discord.ApplicationCommandOption(
-    #                 name="user",
-    #                 type=discord.ApplicationCommandOptionType.user,
-    #                 description="The user you want to transfer money to.",
-    #             ),
-    #             discord.ApplicationCommandOption(
-    #                 name="amount",
-    #                 type=discord.ApplicationCommandOptionType.string,
-    #                 description="The amount that you want to transfer.",
-    #             ),
-    #         ],
-    #         guild_only=True,
-    #     ),
-    # )
-    # @commands.guild_only()
-    # async def transfer(self, ctx: vbu.Context, user: discord.Member, amount: utils.BetAmount):
-    #     """
-    #     Transfers money from the author's account to another user's account.
-    #     """
+    @commands.command(
+        aliases=["pay", "give"],
+        application_command_meta=commands.ApplicationCommandMeta(
+            options=[
+                discord.ApplicationCommandOption(
+                    name="user",
+                    type=discord.ApplicationCommandOptionType.user,
+                    description="The user you want to transfer money to.",
+                ),
+                discord.ApplicationCommandOption(
+                    name="bet",
+                    type=discord.ApplicationCommandOptionType.integer,
+                    description="The amount that you want to bet.",
+                    min_value=0,
+                ),
+                discord.ApplicationCommandOption(
+                    name="currency",
+                    type=discord.ApplicationCommandOptionType.string,
+                    description="The currency that you want to bet in.",
+                ),
+            ],
+            guild_only=True,
+        ),
+    )
+    @commands.defer()
+    async def transfer(
+            self,
+            ctx: vbu.SlashContext,
+            user: discord.Member,
+            bet: int,
+            currency: str):
+        """
+        Transfers money from the author's account to another user's account.
+        """
 
-    #     async with vbu.Database() as db:
-    #         await db.start_transaction()
-    #         await db(
-    #             """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
-    #             ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
-    #             money_amount=user_money.money_amount+excluded.money_amount""",
-    #             user.id, ctx.guild.id, amount.currency, amount.amount,
-    #         )
-    #         await db(
-    #             """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
-    #             ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
-    #             money_amount=user_money.money_amount+excluded.money_amount""",
-    #             ctx.author.id, ctx.guild.id, amount.currency, -amount.amount,
-    #         )
-    #         await db.commit_transaction()
-    #     await ctx.okay()
+        # Make sure the user and the author are different
+        if ctx.author == user:
+            return await ctx.interaction.followup.send("You can't transfer money to yourself.")
+
+        # Make sure they have enough money
+        ba = utils.BetAmount(bet, currency)
+        await ba.validate(ctx)
+
+        # Transfer
+        self.bot.dispatch(
+            "transaction",
+            ctx.author,
+            ba.currency,
+            -ba.amount,
+            f"TRANSFER TO {user.id}",
+        )
+        self.bot.dispatch(
+            "transaction",
+            user,
+            ba.currency,
+            ba.amount,
+            f"TRANSFER FROM {ctx.interaction.user.id}",
+        )
+
+        # And done
+        return await ctx.interaction.followup.send("Money transferred :)")
+
+        # todo add confirm button
 
     @commands.command(
         aliases=['bal', 'coins'],
