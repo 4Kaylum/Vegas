@@ -69,21 +69,34 @@ class SlotsCommands(utils.GamblingCog):
             options=[
                 discord.ApplicationCommandOption(
                     name="bet",
-                    type=discord.ApplicationCommandOptionType.string,
+                    type=discord.ApplicationCommandOptionType.integer,
                     description="The amount that you want to bet.",
-                    required=False,
-                )
+                    min_value=0,
+                ),
+                discord.ApplicationCommandOption(
+                    name="currency",
+                    type=discord.ApplicationCommandOptionType.string,
+                    description="The currency that you want to bet in.",
+                ),
             ],
             guild_only=True,
         ),
     )
-    async def slots(self, ctx: vbu.SlashContext, *, bet: Optional[utils.BetAmount] = None):
+    @commands.defer()
+    async def slots(
+            self,
+            ctx: vbu.SlashContext,
+            bet: int,
+            currency: str):
         """
         Runs a slot machine.
         """
 
+        # Fix our bet amount into an object
+        ba = utils.BetAmount(bet, currency)
+        await ba.validate(ctx)
+
         # See where our reels ended up
-        bet = bet or utils.BetAmount()
         slot_indexes = [
             random.randint(0, len(self.SLOT_ITEMS[0]) - 1),
             random.randint(0, len(self.SLOT_ITEMS[1]) - 1),
@@ -119,25 +132,27 @@ class SlotsCommands(utils.GamblingCog):
         # Work out what to output
         multiplier = self.get_slots_score(joined_lines[1])
         embed = vbu.Embed(use_random_colour=True).add_field("Roll", "\n".join(joined_lines))
-        if bet.amount:
+        if ba.amount:
             if multiplier == 0:
-                embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
+                embed.add_field("Result", f"You lost, removed **{ba.amount:,}** from your account :c", inline=False)
             elif multiplier > 0:
-                embed.add_field("Result", f"You won! Added **{bet.amount * multiplier:,}** to your account! :D", inline=False)
+                embed.add_field("Result", f"You won! Added **{ba.amount * multiplier:,}** to your account! :D", inline=False)
         else:
             if multiplier == 0:
                 embed.add_field("Result", "You lost :c", inline=False)
             elif multiplier > 0:
                 embed.add_field("Result", "You won! :D", inline=False)
+
+        # And they win
         self.bot.dispatch(
             "transaction",
             ctx.author,
-            bet.currency,
-            -bet.amount if multiplier == 0 else bet.amount * multiplier,
-            "SLOTS",
+            ba.currency,
+            -ba.amount if multiplier == 0 else ba.amount * multiplier,
+            "GAME slots",
             multiplier != 0,
         )
-        return await ctx.send(embed=embed)
+        return await ctx.interaction.followup.send(embed=embed)
 
 
 def setup(bot: vbu.Bot):
