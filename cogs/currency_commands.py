@@ -107,16 +107,30 @@ class CurrencyCommands(vbu.Cog):
                 WHERE guild_id=$1 AND user_id=$2 GROUP BY currency_name""",
                 ctx.guild.id, user.id,
             )
-            # todo include all currencies for the guild
+            all_currencies = await db.call(
+                """SELECT currency_name FROM guild_currencies WHERE guild_id=$1""",
+                ctx.guild.id,
+            )
 
         # Format into an embed
         embed = vbu.Embed(use_random_colour=True)
+        added_currencies = set()
         for row in rows:
             name = row['currency_name']
+            added_currencies.add(name)
             currency_name = name.title() if name.lower() == name else name
             embed.add_field(
                 name=currency_name,
                 value=format(int(row['sum'] or 0), ","),
+            )
+        for row in all_currencies:
+            name = row['currency_name']
+            if name in added_currencies:
+                continue
+            currency_name = name.title() if name.lower() == name else name
+            embed.add_field(
+                name=currency_name,
+                value=format(0, ","),
             )
 
         # Default case
