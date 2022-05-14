@@ -28,21 +28,16 @@ class TransactionHandler(vbu.Cog[vbu.Bot]):
         reason : str
             The reason they are moving the money.
         win : Optional[bool]
-            Whether or not they won the game that they are transacting for. Could be null in the case of a trade.
+            Whether or not they won the game that they are transacting for. Could be null in the case of a trade,
+            a daily command, etc.
         """
 
-        async with vbu.Database() as db:
-            await db(
-                """INSERT INTO transactions (user_id, guild_id, currency_name, amount_transferred, reason, win)
-                VALUES ($1, $2, $3, $4, $5, $6)""",
-                member.id, member.guild.id, currency, amount or None, reason, win,
-            )
-            if amount and currency:
-                await db.call(
-                    """INSERT INTO user_money (user_id, guild_id, currency_name, money_amount) VALUES ($1, $2, $3, $4)
-                    ON CONFLICT (user_id, guild_id, currency_name) DO UPDATE SET
-                    money_amount=user_money.money_amount+excluded.money_amount""",
-                    member.id, member.guild.id, currency, amount,
+        if amount and currency:
+            async with vbu.Database() as db:
+                await db(
+                    """INSERT INTO transactions (user_id, guild_id, currency_name, amount_transferred, reason, win)
+                    VALUES ($1, $2, $3, $4, $5, $6)""",
+                    member.id, member.guild.id, currency, amount or None, reason, win,
                 )
 
 
