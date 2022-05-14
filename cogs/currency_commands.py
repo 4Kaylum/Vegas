@@ -9,7 +9,7 @@ from discord.ext import commands, vbu
 from cogs import utils
 
 
-class CurrencyCommands(vbu.Cog):
+class CurrencyCommands(vbu.Cog[vbu.Bot]):
 
     MAX_GUILD_CURRENCIES = 3
     DAILY_COMMAND_TIMEOUT = timedelta(days=1)

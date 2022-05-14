@@ -83,6 +83,7 @@ class DiceCommands(utils.GamblingCog):
                     name="currency",
                     type=discord.ApplicationCommandOptionType.string,
                     description="The currency that you want to bet in.",
+                    autocomplete=True,
                 ),
             ],
             guild_only=True,
@@ -116,6 +117,7 @@ class DiceCommands(utils.GamblingCog):
                     name="currency",
                     type=discord.ApplicationCommandOptionType.string,
                     description="The currency that you want to bet in.",
+                    autocomplete=True,
                 ),
             ],
             guild_only=True,
@@ -149,6 +151,7 @@ class DiceCommands(utils.GamblingCog):
                     name="currency",
                     type=discord.ApplicationCommandOptionType.string,
                     description="The currency that you want to bet in.",
+                    autocomplete=True,
                 ),
             ],
             guild_only=True,
@@ -167,6 +170,10 @@ class DiceCommands(utils.GamblingCog):
         ba = utils.BetAmount(bet, currency)
         await ba.validate(ctx)
         await self.roll_dice(ctx, "95x5", 95, 5, ba)
+
+    dice_55x2.autocomplete(utils.autocomplete.currency_name_autocomplete)
+    dice_75x3.autocomplete(utils.autocomplete.currency_name_autocomplete)
+    dice_95x5.autocomplete(utils.autocomplete.currency_name_autocomplete)
 
 
 def setup(bot: vbu.Bot):

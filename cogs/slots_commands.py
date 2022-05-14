@@ -77,6 +77,7 @@ class SlotsCommands(utils.GamblingCog):
                     name="currency",
                     type=discord.ApplicationCommandOptionType.string,
                     description="The currency that you want to bet in.",
+                    autocomplete=True,
                 ),
             ],
             guild_only=True,
@@ -153,6 +154,8 @@ class SlotsCommands(utils.GamblingCog):
             multiplier != 0,
         )
         return await ctx.interaction.followup.send(embed=embed)
+
+    slots.autocomplete(utils.autocomplete.currency_name_autocomplete)
 
 
 def setup(bot: vbu.Bot):

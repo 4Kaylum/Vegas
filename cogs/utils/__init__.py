@@ -1,8 +1,9 @@
 from discord.ext import vbu
 
-from cogs.utils.cards import Card, Deck, Hand
-from cogs.utils.currency_amount import CurrencyAmount, BetAmount
-from cogs.utils.game_lock_handler import GameLockHandler
+from . import autocomplete
+from .cards import Card, Deck, Hand
+from .currency_amount import CurrencyAmount, BetAmount
+from .game_lock_handler import GameLockHandler
 
 
 class GamblingCog(vbu.Cog[vbu.Bot]):

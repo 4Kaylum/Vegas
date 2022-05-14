@@ -22,6 +22,7 @@ class BlackjackCommands(utils.GamblingCog):
                     name="currency",
                     type=discord.ApplicationCommandOptionType.string,
                     description="The currency that you want to bet in.",
+                    autocomplete=True,
                 ),
             ],
             guild_only=True,
@@ -165,6 +166,8 @@ class BlackjackCommands(utils.GamblingCog):
         else:
             self.bot.dispatch("transaction", ctx.author, ba.currency, 0, "GAME blackjack", False)
         return await send_method(embed=embed, components=components)  # type: ignore
+
+    blackjack.autocomplete(utils.autocomplete.currency_name_autocomplete)
 
 
 def setup(bot: vbu.Bot):
