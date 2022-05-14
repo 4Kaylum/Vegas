@@ -187,6 +187,7 @@ class CurrencyCommands(vbu.Cog):
                 VALUES ($1, $2, $3, $4)""",
                 ctx.guild.id, name, short_form, daily_command,
             )
+        return await ctx.interaction.followup.send("Your currency has been created!")
 
     # @currency.command(name="add")
     # @commands.has_guild_permissions(manage_guild=True)

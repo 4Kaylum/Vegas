@@ -11,7 +11,7 @@ class DiceCommands(utils.GamblingCog):
 
     async def roll_dice(
             self,
-            ctx: vbu.Context,
+            ctx: vbu.SlashContext,
             dice_limit: int,
             multiplier: int,
             bet: utils.BetAmount) -> None:
@@ -74,22 +74,29 @@ class DiceCommands(utils.GamblingCog):
             options=[
                 discord.ApplicationCommandOption(
                     name="bet",
-                    type=discord.ApplicationCommandOptionType.string,
+                    type=discord.ApplicationCommandOptionType.integer,
                     description="The amount that you want to bet.",
-                    required=False,
-                )
+                    min_value=0,
+                ),
+                discord.ApplicationCommandOption(
+                    name="currency",
+                    type=discord.ApplicationCommandOptionType.string,
+                    description="The currency that you want to bet in.",
+                ),
             ],
             guild_only=True,
         ),
     )
-    @commands.bot_has_permissions(send_messages=True, embed_links=True)
-    @commands.guild_only()
-    async def dice_55x2(self, ctx: vbu.Context, *, bet: Optional[utils.BetAmount] = None):
+    async def dice_55x2(
+            self,
+            ctx: vbu.SlashContext,
+            bet: int,
+            currency: str):
         """
         Place a bet on a dice roll - any number rolled that's higher than 55 will multiply your bet x2.
         """
 
-        await self.roll_dice(ctx, 55, 2, bet or utils.BetAmount())
+        await self.roll_dice(ctx, 55, 2, utils.BetAmount(bet, currency))
 
     @dice.command(
         name="75x3",
@@ -97,22 +104,29 @@ class DiceCommands(utils.GamblingCog):
             options=[
                 discord.ApplicationCommandOption(
                     name="bet",
-                    type=discord.ApplicationCommandOptionType.string,
+                    type=discord.ApplicationCommandOptionType.integer,
                     description="The amount that you want to bet.",
-                    required=False,
-                )
+                    min_value=0,
+                ),
+                discord.ApplicationCommandOption(
+                    name="currency",
+                    type=discord.ApplicationCommandOptionType.string,
+                    description="The currency that you want to bet in.",
+                ),
             ],
             guild_only=True,
         ),
     )
-    @commands.bot_has_permissions(send_messages=True, embed_links=True)
-    @commands.guild_only()
-    async def dice_75x3(self, ctx: vbu.Context, *, bet: Optional[utils.BetAmount] = None):
+    async def dice_75x3(
+            self,
+            ctx: vbu.SlashContext,
+            bet: int,
+            currency: str):
         """
         Place a bet on a dice roll - any number rolled that's higher than 75 will multiply your bet x3.
         """
 
-        await self.roll_dice(ctx, 75, 3, bet or utils.BetAmount())
+        await self.roll_dice(ctx, 75, 3, utils.BetAmount(bet, currency))
 
     @dice.command(
         name="95x5",
@@ -120,22 +134,29 @@ class DiceCommands(utils.GamblingCog):
             options=[
                 discord.ApplicationCommandOption(
                     name="bet",
-                    type=discord.ApplicationCommandOptionType.string,
+                    type=discord.ApplicationCommandOptionType.integer,
                     description="The amount that you want to bet.",
-                    required=False,
-                )
+                    min_value=0,
+                ),
+                discord.ApplicationCommandOption(
+                    name="currency",
+                    type=discord.ApplicationCommandOptionType.string,
+                    description="The currency that you want to bet in.",
+                ),
             ],
             guild_only=True,
         ),
     )
-    @commands.bot_has_permissions(send_messages=True, embed_links=True)
-    @commands.guild_only()
-    async def dice_95x5(self, ctx: vbu.Context, *, bet: Optional[utils.BetAmount] = None):
+    async def dice_95x5(
+            self,
+            ctx: vbu.SlashContext,
+            bet: int,
+            currency: str):
         """
         Place a bet on a dice roll - any number rolled that's higher than 95 will multiply your bet x5.
         """
 
-        await self.roll_dice(ctx, 95, 5, bet or utils.BetAmount())
+        await self.roll_dice(ctx, 95, 5, utils.BetAmount(bet, currency))
 
 
 def setup(bot: vbu.Bot):
