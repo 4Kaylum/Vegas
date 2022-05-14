@@ -88,11 +88,12 @@ class CurrencyCommands(vbu.Cog):
         # Format into an embed
         embed = vbu.Embed(use_random_colour=True)
         for row in rows:
+            self.logger.info(row)
             name = row['currency_name']
             currency_name = name.title() if name.lower() == name else name
             embed.add_field(
                 name=currency_name,
-                value=format(row['sum'] or 0, ","),
+                value=format(row['amount_transferred'] or 0, ","),
             )
 
         # Default case
