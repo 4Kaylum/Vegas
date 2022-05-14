@@ -1,12 +1,13 @@
 import random
+from typing import Optional
 
-from discord.ext import commands
-import voxelbotutils as utils
+import discord
+from discord.ext import commands, vbu
 
-from cogs import utils as localutils
+from cogs import utils
 
 
-class SlotsCommands(localutils.GamblingCog):
+class SlotsCommands(utils.GamblingCog):
 
     SLOT_EMOJIS = {
         "LEMON": "\N{LEMON}",
@@ -62,16 +63,27 @@ class SlotsCommands(localutils.GamblingCog):
                 return multiplier
         return 0
 
-    @utils.command(aliases=['slot'])
-    @commands.bot_has_permissions(send_messages=True, embed_links=True)
-    @commands.guild_only()
-    async def slots(self, ctx: utils.Context, *, bet: localutils.BetAmount = None):
+    @commands.command(
+        aliases=['slot'],
+        application_command_meta=commands.ApplicationCommandMeta(
+            options=[
+                discord.ApplicationCommandOption(
+                    name="bet",
+                    type=discord.ApplicationCommandOptionType.string,
+                    description="The amount that you want to bet.",
+                    required=False,
+                )
+            ],
+            guild_only=True,
+        ),
+    )
+    async def slots(self, ctx: vbu.SlashContext, *, bet: Optional[utils.BetAmount] = None):
         """
         Runs a slot machine.
         """
 
         # See where our reels ended up
-        bet = bet or localutils.CurrencyAmount()
+        bet = bet or utils.BetAmount()
         slot_indexes = [
             random.randint(0, len(self.SLOT_ITEMS[0]) - 1),
             random.randint(0, len(self.SLOT_ITEMS[1]) - 1),
@@ -106,7 +118,7 @@ class SlotsCommands(localutils.GamblingCog):
 
         # Work out what to output
         multiplier = self.get_slots_score(joined_lines[1])
-        embed = utils.Embed(use_random_colour=True).add_field("Roll", "\n".join(joined_lines))
+        embed = vbu.Embed(use_random_colour=True).add_field("Roll", "\n".join(joined_lines))
         if bet.amount:
             if multiplier == 0:
                 embed.add_field("Result", f"You lost, removed **{bet.amount:,}** from your account :c", inline=False)
@@ -117,10 +129,17 @@ class SlotsCommands(localutils.GamblingCog):
                 embed.add_field("Result", "You lost :c", inline=False)
             elif multiplier > 0:
                 embed.add_field("Result", "You won! :D", inline=False)
-        self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount if multiplier == 0 else bet.amount * multiplier, "SLOTS", multiplier != 0)
+        self.bot.dispatch(
+            "transaction",
+            ctx.author,
+            bet.currency,
+            -bet.amount if multiplier == 0 else bet.amount * multiplier,
+            "SLOTS",
+            multiplier != 0,
+        )
         return await ctx.send(embed=embed)
 
 
-def setup(bot: utils.Bot):
+def setup(bot: vbu.Bot):
     x = SlotsCommands(bot)
     bot.add_cog(x)

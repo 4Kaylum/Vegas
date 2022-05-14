@@ -1,33 +1,34 @@
 import asyncio
+from typing import Optional
 
 import discord
-from discord.ext import commands
-import voxelbotutils as utils
+from discord.ext import commands, vbu
 
-from cogs import utils as localutils
+from cogs import utils
 
 
-class BlackjackCommands(localutils.GamblingCog):
+class BlackjackCommands(utils.GamblingCog):
 
-    @utils.command(aliases=['bj'])
+    @commands.command(aliases=['bj'])
     @commands.bot_has_permissions(send_messages=True, embed_links=True, external_emojis=True, add_reactions=True)
     @commands.guild_only()
-    async def blackjack(self, ctx: utils.Context, *, bet: localutils.BetAmount = None):
+    async def blackjack(self, ctx: vbu.Context, *, bet: Optional[utils.BetAmount] = None):
         """
         Lets you play a blackjack game against the bot.
         """
 
         # Create the deck and hands used for the game
-        deck: localutils.Deck = localutils.Deck.create_deck(shuffle=True)
-        dealer_hand: localutils.Hand = localutils.Hand(deck)
+        deck: utils.Deck = utils.Deck.create_deck(shuffle=True)
+        dealer_hand: utils.Hand = utils.Hand(deck)
         dealer_hand.draw(2)
-        user_hand: localutils.Hand = localutils.Hand(deck)
+        user_hand: utils.Hand = utils.Hand(deck)
         user_hand.draw(2)
-        bet = bet or localutils.CurrencyAmount()
-        components = utils.MessageComponents(
-            utils.ActionRow(
-                utils.Button("HIT", "HIT"),
-                utils.Button("STAND", "STAND"),
+        bet = bet or utils.CurrencyAmount()
+        assert bet
+        components = discord.ui.MessageComponents(
+            discord.ui.ActionRow(
+                discord.ui.Button(label="HIT", custom_id="HIT"),
+                discord.ui.Button(label="STAND", custom_id="STAND"),
             ),
         )
 
@@ -37,7 +38,7 @@ class BlackjackCommands(localutils.GamblingCog):
 
             # See if the user went bust
             if min(user_hand.get_values()) > 21:
-                embed = utils.Embed(colour=discord.Colour.red())
+                embed = vbu.Embed(colour=discord.Colour.red())
                 embed.add_field("Dealer Hand", f"{dealer_hand.display(show_cards=1)} (??)", inline=True)
                 embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values()[-1]} - bust)", inline=True)
                 if bet.amount:
@@ -45,12 +46,13 @@ class BlackjackCommands(localutils.GamblingCog):
                 else:
                     embed.add_field("Result", "You lost :c", inline=False)
                 self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
+                assert message
                 return await message.edit(embed=embed, components=components.disable_components())
             if max(user_hand.get_values(max_value=21)) == 21:
                 break
 
             # Output the hands to be used
-            embed = utils.Embed(colour=0xfffffe)
+            embed = vbu.Embed(colour=0xfffffe)
             embed.add_field("Dealer Hand", f"{dealer_hand.display(show_cards=1)} (??)", inline=True)
             embed.add_field("Your Hand", f"{user_hand.display()} ({', '.join(user_hand.get_values(cast=str, max_value=21))})", inline=True)
             if message is None:
@@ -59,20 +61,19 @@ class BlackjackCommands(localutils.GamblingCog):
                 await message.edit(embed=embed)
 
             # See what the user wants to do
-            def check(payload):
+            def check(interaction):
                 return all([
-                    payload.message.id == message.id,
-                    payload.user.id == ctx.author.id,
+                    interaction.message.id == message.id,
+                    interaction.user.id == ctx.author.id,
                 ])
             try:
-                payload = await self.bot.wait_for("component_interaction", check=check, timeout=120)
-                await payload.ack()
+                interaction = await self.bot.wait_for("component_interaction", check=check, timeout=120)
+                await interaction.response.defer_update()
             except asyncio.TimeoutError:
                 return await ctx.send("Timed out waiting for your response.")
 
             # See if they want to stand
-            clicked = payload.component
-            if clicked.custom_id == "STAND":
+            if interaction.custom_id == "STAND":
                 break
 
             # See if they want to hit
@@ -82,6 +83,7 @@ class BlackjackCommands(localutils.GamblingCog):
         # Let's draw until we get higher than the user
         user_max_value = max(user_hand.get_values(max_value=21))
         user_has_won = None
+        max_dealer_value = 0
         while True:
             try:
                 max_dealer_value = max(dealer_hand.get_values(max_value=21))
@@ -107,7 +109,7 @@ class BlackjackCommands(localutils.GamblingCog):
 
         # Output something for the user winning
         if user_has_won:
-            embed = utils.Embed(colour=discord.Colour.green())
+            embed = vbu.Embed(colour=discord.Colour.green())
             if min(dealer_hand.get_values()) > 21:
                 embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values()[-1]} - bust)", inline=True)
             else:
@@ -118,10 +120,10 @@ class BlackjackCommands(localutils.GamblingCog):
             else:
                 embed.add_field("Result", "You won! :D", inline=False)
             self.bot.dispatch("transaction", ctx.author, bet.currency, bet.amount, "BLACKJACK", True)
-            return await send_method(embed=embed, components=components)
+            return await send_method(embed=embed, components=components)  # type: ignore
 
         # Output something for the dealer winning
-        embed = utils.Embed(colour=discord.Colour.red())
+        embed = vbu.Embed(colour=discord.Colour.red())
         embed.add_field("Dealer Hand", f"{dealer_hand.display()} ({dealer_hand.get_values(max_value=21)[0]})", inline=True)
         embed.add_field("Your Hand", f"{user_hand.display()} ({user_hand.get_values(max_value=21)[0]})", inline=True)
         if max_dealer_value > user_max_value:
@@ -138,9 +140,9 @@ class BlackjackCommands(localutils.GamblingCog):
             self.bot.dispatch("transaction", ctx.author, bet.currency, -bet.amount, "BLACKJACK", False)
         else:
             self.bot.dispatch("transaction", ctx.author, bet.currency, 0, "BLACKJACK", False)
-        return await send_method(embed=embed, components=components)
+        return await send_method(embed=embed, components=components)  # type: ignore
 
 
-def setup(bot: utils.Bot):
+def setup(bot: vbu.Bot):
     x = BlackjackCommands(bot)
     bot.add_cog(x)

@@ -1,1 +1,1 @@
-voxelbotutils
+novus[vbu,speedups]

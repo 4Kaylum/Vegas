@@ -1,5 +1,4 @@
 import typing
-import enum
 import random
 import operator
 import itertools
