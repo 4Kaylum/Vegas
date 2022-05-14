@@ -79,21 +79,3 @@ class BetAmount(CurrencyAmount):
         if not rows or rows[0]['sum'] < self.amount:
             raise commands.BadArgument("You don't have enough money to make that bet.")
         return True
-
-    @classmethod
-    async def convert(cls, ctx, value):
-        """
-        Grab the amount of money that the user wants to bet.
-        """
-
-        new = await super().convert(ctx, value)
-        if new.amount <= 0 or new.currency is None:
-            return new
-        async with ctx.bot.database() as db:
-            rows = await db(
-                """SELECT * FROM user_money WHERE user_id=$1 AND guild_id=$2 AND currency_name=$3""",
-                ctx.author.id, ctx.guild.id, new.currency,
-            )
-        if not rows or rows[0]['money_amount'] < new.amount:
-            raise commands.BadArgument("You don't have enough money to make that bet.")
-        return new

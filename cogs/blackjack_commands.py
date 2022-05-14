@@ -39,6 +39,7 @@ class BlackjackCommands(utils.GamblingCog):
 
         # Fix the bet amount into an object
         ba = utils.BetAmount(bet, currency)
+        await ba.validate(ctx)
 
         # Create the deck and hands used for the game
         deck: utils.Deck = utils.Deck.create_deck(shuffle=True)
