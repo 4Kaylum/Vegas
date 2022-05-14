@@ -87,6 +87,7 @@ class DiceCommands(utils.GamblingCog):
             guild_only=True,
         ),
     )
+    @commands.defer()
     async def dice_55x2(
             self,
             ctx: vbu.SlashContext,
@@ -119,6 +120,7 @@ class DiceCommands(utils.GamblingCog):
             guild_only=True,
         ),
     )
+    @commands.defer()
     async def dice_75x3(
             self,
             ctx: vbu.SlashContext,
@@ -151,6 +153,7 @@ class DiceCommands(utils.GamblingCog):
             guild_only=True,
         ),
     )
+    @commands.defer()
     async def dice_95x5(
             self,
             ctx: vbu.SlashContext,
