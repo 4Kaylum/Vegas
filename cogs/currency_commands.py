@@ -69,6 +69,7 @@ class CurrencyCommands(vbu.Cog):
             guild_only=True,
         ),
     )
+    @commands.defer()
     async def balance(self, ctx: vbu.SlashContext, user: Optional[discord.Member] = None):
         """
         Shows you how many coins you have.
