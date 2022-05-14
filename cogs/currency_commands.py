@@ -79,7 +79,7 @@ class CurrencyCommands(vbu.Cog):
         assert user
         async with vbu.Database() as db:
             rows = await db.call(
-                """SELECT SUM(amount_transferred), currency_name FROM transactions
+                """SELECT SUM(amount_transferred) am, currency_name FROM transactions
                 WHERE guild_id=$1 AND user_id=$2 GROUP BY currency_name""",
                 ctx.guild.id, user.id,
             )
@@ -92,7 +92,7 @@ class CurrencyCommands(vbu.Cog):
             currency_name = name.title() if name.lower() == name else name
             embed.add_field(
                 name=currency_name,
-                value=format(row['money_amount'] or 0, ","),
+                value=format(row['am'] or 0, ","),
             )
 
         # Default case
