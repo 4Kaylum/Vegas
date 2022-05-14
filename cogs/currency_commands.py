@@ -134,7 +134,7 @@ class CurrencyCommands(vbu.Cog):
             )
 
         # Default case
-        if not rows:
+        if not all_currencies:
             embed.description = "This guild has no currencies created."
 
         # And send
