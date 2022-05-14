@@ -8,7 +8,7 @@ class CurrencyAmount(object):
 
     SLASH_COMMAND_ARG_TYPE = discord.ApplicationCommandOptionType.string
 
-    def __init__(self, amount: int = 0, currency: Optional[str] = None):
+    def __init__(self, amount: int = 0, currency: str = "coins"):
         self.amount = amount
         self.currency = currency
 
@@ -22,10 +22,10 @@ class CurrencyAmount(object):
         try:
             amount_str, currency_str = value.split(" ", 1)
         except ValueError:
-            amount_str, currency_str = value, None
+            amount_str, currency_str = value, "coins"
         amount = await vbu.converters.NumberConverter.convert(ctx, amount_str)
         if amount == 0:
-            return cls(0, None)
+            return cls(0, currency_str)
 
         # Work out which currency they want to bet
         async with ctx.bot.database() as db:

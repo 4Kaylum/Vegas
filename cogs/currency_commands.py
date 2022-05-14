@@ -88,7 +88,15 @@ class CurrencyCommands(vbu.Cog):
         for row in rows:
             name = row['currency_name']
             currency_name = name.title() if name.lower() == name else name
-            embed.add_field(currency_name, format(row['money_amount'] or 0, ","))
+            embed.add_field(
+                name=currency_name,
+                value=format(row['money_amount'] or 0, ","),
+            )
+        if not rows:
+            embed.add_field(
+                name="Coins",
+                value=format(0, ","),
+            )
         await ctx.send(embed=embed)
 
     # @commands.group(aliases=['currencies'], invoke_without_command=False)
